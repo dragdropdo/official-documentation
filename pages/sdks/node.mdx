@@ -1,0 +1,236 @@
+---
+title: "Node.js SDK"
+description: "Official Node.js client for the D3 Business API."
+---
+
+# Node.js SDK
+
+The official `d3-node-client` package provides a high‑level, type‑safe interface to the D3 Business API.
+
+> This page summarizes and reorganizes the content from the SDK README for Mintlify.
+
+## Installation
+
+```bash
+npm install d3-node-client
+```
+
+## Quick start
+
+```ts
+import { D3Client } from "d3-node-client";
+
+// Initialize the client
+const client = new D3Client({
+  apiKey: "your-api-key-here",
+  baseURL: "https://api.d3.com", // Optional, defaults to https://api.d3.com
+  timeout: 30000                  // Optional, defaults to 30000ms
+});
+
+// Upload a file
+const uploadResult = await client.uploadFile({
+  file: "/path/to/document.pdf",
+  fileName: "document.pdf",
+  mimeType: "application/pdf"
+});
+
+console.log("File key:", uploadResult.fileKey);
+```
+
+## Initialization
+
+```ts
+new D3Client(config: D3ClientConfig)
+```
+
+**Config:**
+
+- `apiKey` (**required**) – your D3 API key.
+- `baseURL` (optional) – API base URL, default: `https://api.d3.com`.
+- `timeout` (optional) – request timeout in ms, default: `30000`.
+- `headers` (optional) – additional headers to send with every request.
+
+## File upload
+
+```ts
+uploadFile(options: UploadFileOptions): Promise<UploadResponse>
+```
+
+**Options:**
+
+- `file` (**required**) – file path string.
+- `fileName` (**required**) – original file name.
+- `mimeType` (optional) – MIME type (auto‑detected if omitted).
+- `parts` (optional) – number of upload parts (auto‑calculated).
+- `onProgress` (optional) – progress callback.
+
+Example:
+
+```ts
+const result = await client.uploadFile({
+  file: "/path/to/file.pdf",
+  fileName: "document.pdf",
+  mimeType: "application/pdf",
+  onProgress: (progress) => {
+    console.log(`Upload: ${progress.percentage}%`);
+  }
+});
+```
+
+## Supported operations
+
+```ts
+checkSupportedOperation(
+  options: SupportedOperationOptions
+): Promise<SupportedOperationResponse>
+```
+
+**Options:**
+
+- `ext` (**required**) – file extension (e.g. `pdf`, `jpg`).
+- `action` (optional) – specific action (`convert`, `compress`, ...).
+- `parameters` (optional) – parameters to validate (e.g. `{ convert_to: "png" }`).
+
+Examples:
+
+```ts
+// Get available actions for PDF
+const actions = await client.checkSupportedOperation({ ext: "pdf" });
+console.log(actions.availableActions);
+
+// Check if convert to PNG is supported
+const supported = await client.checkSupportedOperation({
+  ext: "pdf",
+  action: "convert",
+  parameters: { convert_to: "png" }
+});
+console.log("Supported:", supported.supported);
+```
+
+## Create operations
+
+```ts
+createOperation(options: OperationOptions): Promise<OperationResponse>
+```
+
+**Options:**
+
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `fileKeys` (**required**) – array of file keys from upload.
+- `parameters` (optional) – action‑specific parameters.
+- `notes` (optional) – user metadata.
+
+Examples:
+
+```ts
+// Convert PDF to PNG
+await client.createOperation({
+  action: "convert",
+  fileKeys: [uploadResult.fileKey],
+  parameters: { convert_to: "png" },
+  notes: { userId: "user-123" }
+});
+
+// Compress
+await client.createOperation({
+  action: "compress",
+  fileKeys: [uploadResult.fileKey],
+  parameters: { compression_value: "recommended" }
+});
+```
+
+### Convenience helpers
+
+The client exposes shorthand helpers:
+
+```ts
+await client.convert(fileKeys, convertTo, notes?);
+await client.compress(fileKeys, compressionValue?, notes?);
+await client.merge(fileKeys, notes?);
+await client.zip(fileKeys, notes?);
+await client.share(fileKeys, notes?);
+await client.lockPdf(fileKeys, password, notes?);
+await client.unlockPdf(fileKeys, password, notes?);
+await client.resetPdfPassword(fileKeys, oldPassword, newPassword, notes?);
+```
+
+## Status & polling
+
+```ts
+getStatus(options: StatusOptions): Promise<StatusResponse>
+pollStatus(options: PollStatusOptions): Promise<StatusResponse>
+```
+
+Examples:
+
+```ts
+// Single status fetch
+const status = await client.getStatus({ mainTaskId: "task-123" });
+
+// Poll until completion
+const finalStatus = await client.pollStatus({
+  mainTaskId: "task-123",
+  interval: 2000,
+  timeout: 300000,
+  onUpdate: (status) => {
+    console.log("Status:", status.operationStatus);
+  }
+});
+```
+
+## Complete workflow example
+
+```ts
+import { D3Client, D3APIError, D3ValidationError } from "d3-node-client";
+
+async function processFile() {
+  const client = new D3Client({
+    apiKey: process.env.D3_API_KEY!,
+    baseURL: "https://api.d3.com"
+  });
+
+  try {
+    // 1. Upload
+    const uploadResult = await client.uploadFile({
+      file: "./document.pdf",
+      fileName: "document.pdf"
+    });
+
+    // 2. Check support
+    const supported = await client.checkSupportedOperation({
+      ext: "pdf",
+      action: "convert",
+      parameters: { convert_to: "png" }
+    });
+    if (!supported.supported) throw new Error("Convert to PNG is not supported");
+
+    // 3. Create operation
+    const operation = await client.convert([uploadResult.fileKey], "png", {
+      userId: "user-123",
+      source: "api"
+    });
+
+    // 4. Poll
+    const status = await client.pollStatus({
+      mainTaskId: operation.mainTaskId,
+      interval: 2000
+    });
+
+    if (status.operationStatus === "completed") {
+      status.filesData.forEach((file) => {
+        console.log(`Download: ${file.downloadLink}`);
+      });
+    }
+  } catch (error) {
+    if (error instanceof D3APIError) {
+      console.error(`API Error (${error.statusCode}):`, error.message);
+    } else if (error instanceof D3ValidationError) {
+      console.error("Validation Error:", error.message);
+    } else {
+      console.error("Error:", error);
+    }
+  }
+}
+```
+
+

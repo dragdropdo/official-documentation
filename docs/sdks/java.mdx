@@ -1,0 +1,261 @@
+---
+title: "Java SDK"
+description: "Official Java client for the D3 Business API."
+---
+
+# Java SDK
+
+The official `d3-java-client` package provides a high‑level interface to the D3 Business API.
+
+## Installation
+
+Add the following dependency to your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>com.d3</groupId>
+    <artifactId>d3-java-client</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+Or for Gradle:
+
+```gradle
+implementation 'com.d3:d3-java-client:1.0.0'
+```
+
+## Quick start
+
+```java
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import com.d3.client.models.*;
+
+// Initialize the client
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key-here")
+        .setBaseUrl("https://api.d3.com")  // Optional, defaults to https://api.d3.com
+        .setTimeout(30000)                 // Optional, defaults to 30000ms
+);
+
+// Upload a file
+UploadResponse uploadResult = client.uploadFile(
+    new UploadFileOptions()
+        .setFile("/path/to/document.pdf")
+        .setFileName("document.pdf")
+        .setMimeType("application/pdf")
+);
+
+System.out.println("File key: " + uploadResult.getFileKey());
+```
+
+## Initialization
+
+```java
+new D3Client(D3ClientConfig config)
+```
+
+**Config:**
+
+- `apiKey` (**required**) – your D3 API key.
+- `baseUrl` (optional) – API base URL, default: `https://api.d3.com`.
+- `timeout` (optional) – request timeout in ms, default: `30000`.
+- `headers` (optional) – additional headers to send with every request.
+
+## File upload
+
+```java
+uploadFile(UploadFileOptions options)
+```
+
+**Options:**
+
+- `file` (**required**) – file path string.
+- `fileName` (**required**) – original file name.
+- `mimeType` (optional) – MIME type (auto‑detected if omitted).
+- `parts` (optional) – number of upload parts (auto‑calculated).
+- `onProgress` (optional) – progress callback (Consumer<UploadProgress>).
+
+Example:
+
+```java
+UploadResponse result = client.uploadFile(
+    new UploadFileOptions()
+        .setFile("/path/to/file.pdf")
+        .setFileName("document.pdf")
+        .setMimeType("application/pdf")
+        .setOnProgress(progress ->
+            System.out.println("Upload: " + progress.getPercentage() + "%")
+        )
+);
+```
+
+## Supported operations
+
+```java
+checkSupportedOperation(SupportedOperationOptions options)
+```
+
+**Options:**
+
+- `ext` (**required**) – file extension (e.g. `pdf`, `jpg`).
+- `action` (optional) – specific action (`convert`, `compress`, ...).
+- `parameters` (optional) – parameters to validate (e.g. `Map.of("convert_to", "png")`).
+
+Examples:
+
+```java
+// Get available actions for PDF
+SupportedOperationResponse actions = client.checkSupportedOperation(
+    new SupportedOperationOptions().setExt("pdf")
+);
+System.out.println(actions.getAvailableActions());
+
+// Check if convert to PNG is supported
+SupportedOperationResponse supported = client.checkSupportedOperation(
+    new SupportedOperationOptions()
+        .setExt("pdf")
+        .setAction("convert")
+        .setParameters(Map.of("convert_to", "png"))
+);
+System.out.println("Supported: " + supported.isSupported());
+```
+
+## Create operations
+
+```java
+createOperation(OperationOptions options)
+```
+
+**Options:**
+
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `fileKeys` (**required**) – list of file keys from upload.
+- `parameters` (optional) – action‑specific parameters.
+- `notes` (optional) – user metadata.
+
+Examples:
+
+```java
+// Convert PDF to PNG
+client.createOperation(new OperationOptions(
+    "convert",
+    List.of(uploadResult.getFileKey()),
+    Map.of("convert_to", "png"),
+    Map.of("userId", "user-123")
+));
+
+// Compress
+client.createOperation(new OperationOptions(
+    "compress",
+    List.of(uploadResult.getFileKey()),
+    Map.of("compression_value", "recommended"),
+    null
+));
+```
+
+### Convenience helpers
+
+The client exposes shorthand helpers:
+
+```java
+client.convert(fileKeys, convertTo, notes)
+client.compress(fileKeys, compressionValue, notes)
+client.merge(fileKeys, notes)
+client.zip(fileKeys, notes)
+client.share(fileKeys, notes)
+client.lockPdf(fileKeys, password, notes)
+client.unlockPdf(fileKeys, password, notes)
+client.resetPdfPassword(fileKeys, oldPassword, newPassword, notes)
+```
+
+## Status & polling
+
+```java
+getStatus(StatusOptions options)
+pollStatus(PollStatusOptions options)
+```
+
+Examples:
+
+```java
+// Single status fetch
+StatusResponse status = client.getStatus(
+    new StatusOptions().setMainTaskId("task-123")
+);
+
+// Poll until completion
+StatusResponse finalStatus = client.pollStatus(
+    new PollStatusOptions()
+        .setMainTaskId("task-123")
+        .setInterval(2000)
+        .setTimeout(300000)
+        .setOnUpdate(s -> System.out.println("Status: " + s.getOperationStatus()))
+);
+```
+
+## Complete workflow example
+
+```java
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import com.d3.client.models.*;
+import com.d3.client.exceptions.*;
+import java.util.*;
+
+public class Example {
+    public static void main(String[] args) {
+        D3Client client = new D3Client(
+            new D3ClientConfig(System.getenv("D3_API_KEY"))
+                .setBaseUrl("https://api.d3.com")
+        );
+
+        try {
+            // 1. Upload
+            UploadResponse uploadResult = client.uploadFile(
+                new UploadFileOptions()
+                    .setFile("./document.pdf")
+                    .setFileName("document.pdf")
+            );
+
+            // 2. Check support
+            SupportedOperationResponse supported = client.checkSupportedOperation(
+                new SupportedOperationOptions()
+                    .setExt("pdf")
+                    .setAction("convert")
+                    .setParameters(Map.of("convert_to", "png"))
+            );
+            if (!supported.isSupported()) {
+                throw new Exception("Convert to PNG is not supported");
+            }
+
+            // 3. Create operation
+            OperationResponse operation = client.convert(
+                List.of(uploadResult.getFileKey()),
+                "png",
+                Map.of("userId", "user-123", "source", "api")
+            );
+
+            // 4. Poll
+            StatusResponse status = client.pollStatus(
+                new PollStatusOptions()
+                    .setMainTaskId(operation.getMainTaskId())
+                    .setInterval(2000)
+            );
+
+            if ("completed".equals(status.getOperationStatus())) {
+                status.getFilesData().forEach(file ->
+                    System.out.println("Download: " + file.getDownloadLink())
+                );
+            }
+        } catch (D3APIError e) {
+            System.out.println("API Error (" + e.getStatusCode() + "): " + e.getMessage());
+        } catch (D3ValidationError e) {
+            System.out.println("Validation Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}
+```

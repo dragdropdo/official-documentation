@@ -1,0 +1,231 @@
+---
+title: "Quickstart"
+description: "Get started with the D3 Business API in minutes."
+---
+
+# Quickstart
+
+This quickstart shows the end‑to‑end flow using the D3 Business API:
+
+1. Generate an API key.
+2. Upload a file.
+3. Create an operation.
+4. Poll for status.
+
+## 1. Get an API key
+
+API keys are managed via the authenticated developer routes under `/v1/developer`.
+
+### Generate a new API key
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/developer/generate-api-key \
+  -H "Authorization: Bearer your-user-jwt" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My SaaS backend",
+    "webhook_url": "https://example.com/webhooks/d3",
+    "webhook_secret": "",
+    "region": "us-east-1"
+  }'
+```
+
+```ts Node.js SDK
+// Note: API key generation is done via Developer API
+// Once you have the API key, use it to initialize the client:
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "d3_live_xxx", // From Developer API response
+  baseURL: "https://api.d3.com",
+});
+```
+
+</CodeGroup>
+
+**Response (simplified):**
+
+```json
+{
+  "api_key": "d3_live_xxx",
+  "rate_limit": "1000/m",
+  "webhook_url": "https://example.com/webhooks/d3",
+  "webhook_secret": "whsec_xxx",
+  "created_at": "2025-01-01T00:00:00Z"
+}
+```
+
+Store the `api_key` securely – it is only returned once. Authentication for `/v1/biz` endpoints uses this raw key.
+
+## 2. Upload a file
+
+Uploads are done in two steps using presigned URLs.
+
+<CodeGroup>
+```bash cURL
+# Step 1: Initiate upload
+curl -X POST https://api.d3.com/v1/biz/initiate-upload \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_name": "document.pdf",
+    "size": 1234567,
+    "mime_type": "application/pdf",
+    "parts": 1
+  }'
+
+# Step 2: Upload to presigned URL
+
+curl -X PUT "https://minio/..." \
+ -H "Content-Type: application/pdf" \
+ --data-binary "@document.pdf"
+
+# Step 3: Complete upload
+
+curl -X POST https://api.d3.com/v1/biz/complete-upload \
+ -H "X-D3-API-Key: your-api-key" \
+ -H "Content-Type: application/json" \
+ -d '{
+"file_key": "file_key_123"
+}'
+
+````
+
+```ts Node.js SDK
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com"
+});
+
+// All steps handled automatically
+const uploadResult = await client.uploadFile({
+  file: "/path/to/document.pdf",
+  fileName: "document.pdf",
+  mimeType: "application/pdf"
+});
+
+console.log("File key:", uploadResult.fileKey);
+// You can now use file_key in operations
+````
+
+</CodeGroup>
+
+## 3. Create an operation
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "convert",
+    "file_keys": ["file_key_123"],
+    "parameters": {
+      "convert_to": "png"
+    },
+    "notes": {
+      "user_id": "user-123",
+      "source": "api"
+    }
+  }'
+```
+
+```ts Node.js SDK
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Create convert operation
+const operation = await client.convert(["file_key_123"], "png", {
+  user_id: "user-123",
+  source: "api",
+});
+
+console.log("Main task ID:", operation.mainTaskId);
+```
+
+</CodeGroup>
+
+**Response:**
+
+```json
+{
+  "main_task_id": "task_abc123"
+}
+```
+
+## 4. Poll for status
+
+<CodeGroup>
+```bash cURL
+# Single status check
+curl -X GET https://api.d3.com/v1/biz/status/task_abc123 \
+  -H "X-D3-API-Key: your-api-key"
+
+# Poll in a loop (bash example)
+
+while true; do
+response=$(curl -s -X GET https://api.d3.com/v1/biz/status/task_abc123 \
+ -H "X-D3-API-Key: your-api-key")
+
+status=$(echo $response | jq -r '.operation_status')
+echo "Status: $status"
+
+if [ "$status" = "completed" ] || [ "$status" = "failed" ]; then
+echo $response | jq '.'
+break
+fi
+
+sleep 2
+done
+
+````
+
+```ts Node.js SDK
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com"
+});
+
+// Poll until completion
+const status = await client.pollStatus({
+  mainTaskId: "task_abc123",
+  interval: 2000, // Check every 2 seconds
+  onUpdate: (status) => {
+    console.log("Status:", status.operationStatus);
+  }
+});
+
+if (status.operationStatus === "completed") {
+  status.filesData?.forEach((file) => {
+    console.log(`Download: ${file.downloadLink}`);
+  });
+}
+````
+
+</CodeGroup>
+
+**Response:**
+
+```json
+{
+  "operation_status": "completed",
+  "files_data": [
+    {
+      "file_key": "file_key_123_result",
+      "status": "completed",
+      "download_link": "/v1/download/file_key_123_result"
+    }
+  ]
+}
+```
+
+For production integrations we recommend configuring **webhooks** instead of / in addition to polling. See **Business API → Webhooks**.

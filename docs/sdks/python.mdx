@@ -1,0 +1,227 @@
+---
+title: "Python SDK"
+description: "Official Python client for the D3 Business API."
+---
+
+# Python SDK
+
+The official `d3-python-client` package provides a high‑level, type‑safe interface to the D3 Business API.
+
+## Installation
+
+```bash
+pip install d3-python-client
+```
+
+## Quick start
+
+```python
+from d3_client import D3Client, D3ClientConfig
+
+# Initialize the client
+client = D3Client(
+    api_key="your-api-key-here",
+    base_url="https://api.d3.com",  # Optional, defaults to https://api.d3.com
+    timeout=30000  # Optional, defaults to 30000ms
+)
+
+# Upload a file
+upload_result = client.upload_file(
+    file="/path/to/document.pdf",
+    file_name="document.pdf",
+    mime_type="application/pdf"
+)
+
+print("File key:", upload_result.file_key)
+```
+
+## Initialization
+
+```python
+D3Client(config: D3ClientConfig)
+```
+
+**Config:**
+
+- `api_key` (**required**) – your D3 API key.
+- `base_url` (optional) – API base URL, default: `https://api.d3.com`.
+- `timeout` (optional) – request timeout in ms, default: `30000`.
+- `headers` (optional) – additional headers to send with every request.
+
+## File upload
+
+```python
+upload_file(options: UploadFileOptions) -> UploadResponse
+```
+
+**Options:**
+
+- `file` (**required**) – file path string.
+- `file_name` (**required**) – original file name.
+- `mime_type` (optional) – MIME type (auto‑detected if omitted).
+- `parts` (optional) – number of upload parts (auto‑calculated).
+- `on_progress` (optional) – progress callback.
+
+Example:
+
+```python
+result = client.upload_file(
+    file="/path/to/file.pdf",
+    file_name="document.pdf",
+    mime_type="application/pdf",
+    on_progress=lambda progress: print(f"Upload: {progress.percentage}%")
+)
+```
+
+## Supported operations
+
+```python
+check_supported_operation(
+    options: SupportedOperationOptions
+) -> SupportedOperationResponse
+```
+
+**Options:**
+
+- `ext` (**required**) – file extension (e.g. `pdf`, `jpg`).
+- `action` (optional) – specific action (`convert`, `compress`, ...).
+- `parameters` (optional) – parameters to validate (e.g. `{"convert_to": "png"}`).
+
+Examples:
+
+```python
+# Get available actions for PDF
+actions = client.check_supported_operation(ext="pdf")
+print(actions.available_actions)
+
+# Check if convert to PNG is supported
+supported = client.check_supported_operation(
+    ext="pdf",
+    action="convert",
+    parameters={"convert_to": "png"}
+)
+print("Supported:", supported.supported)
+```
+
+## Create operations
+
+```python
+create_operation(options: OperationOptions) -> OperationResponse
+```
+
+**Options:**
+
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `file_keys` (**required**) – array of file keys from upload.
+- `parameters` (optional) – action‑specific parameters.
+- `notes` (optional) – user metadata.
+
+Examples:
+
+```python
+# Convert PDF to PNG
+client.create_operation(
+    action="convert",
+    file_keys=[upload_result.file_key],
+    parameters={"convert_to": "png"},
+    notes={"userId": "user-123"}
+)
+
+# Compress
+client.create_operation(
+    action="compress",
+    file_keys=[upload_result.file_key],
+    parameters={"compression_value": "recommended"}
+)
+```
+
+### Convenience helpers
+
+The client exposes shorthand helpers:
+
+```python
+client.convert(file_keys, convert_to, notes=None)
+client.compress(file_keys, compression_value="recommended", notes=None)
+client.merge(file_keys, notes=None)
+client.zip(file_keys, notes=None)
+client.share(file_keys, notes=None)
+client.lock_pdf(file_keys, password, notes=None)
+client.unlock_pdf(file_keys, password, notes=None)
+client.reset_pdf_password(file_keys, old_password, new_password, notes=None)
+```
+
+## Status & polling
+
+```python
+get_status(options: StatusOptions) -> StatusResponse
+poll_status(options: PollStatusOptions) -> StatusResponse
+```
+
+Examples:
+
+```python
+# Single status fetch
+status = client.get_status(main_task_id="task-123")
+
+# Poll until completion
+final_status = client.poll_status(
+    main_task_id="task-123",
+    interval=2000,
+    timeout=300000,
+    on_update=lambda status: print(f"Status: {status.operation_status}")
+)
+```
+
+## Complete workflow example
+
+```python
+from d3_client import D3Client, D3APIError, D3ValidationError
+import os
+
+def process_file():
+    client = D3Client(
+        api_key=os.getenv("D3_API_KEY"),
+        base_url="https://api.d3.com"
+    )
+
+    try:
+        # 1. Upload
+        upload_result = client.upload_file(
+            file="./document.pdf",
+            file_name="document.pdf"
+        )
+
+        # 2. Check support
+        supported = client.check_supported_operation(
+            ext="pdf",
+            action="convert",
+            parameters={"convert_to": "png"}
+        )
+        if not supported.supported:
+            raise ValueError("Convert to PNG is not supported")
+
+        # 3. Create operation
+        operation = client.convert(
+            [upload_result.file_key],
+            "png",
+            notes={"userId": "user-123", "source": "api"}
+        )
+
+        # 4. Poll
+        status = client.poll_status(
+            main_task_id=operation.main_task_id,
+            interval=2000
+        )
+
+        if status.operation_status == "completed":
+            for file in status.files_data:
+                print(f"Download: {file.download_link}")
+    except D3APIError as e:
+        print(f"API Error ({e.status_code}): {e.message}")
+    except D3ValidationError as e:
+        print(f"Validation Error: {e.message}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+process_file()
+```

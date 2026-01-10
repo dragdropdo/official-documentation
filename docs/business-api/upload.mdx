@@ -1,0 +1,362 @@
+---
+title: "Upload"
+description: "Upload files to D3 using presigned URLs."
+---
+
+# Upload
+
+File uploads are handled via presigned URLs to MinIO. The API exposes two main steps:
+
+- `POST /v1/biz/initiate-upload` – create an upload session and receive presigned URLs.
+- `POST /v1/biz/complete-upload` – finalize the upload and register the file for operations.
+
+## Initiate upload
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/initiate-upload \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_name": "document.pdf",
+    "size": 1234567,
+    "mime_type": "application/pdf",
+    "parts": 1
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Initiate upload (handled automatically by uploadFile)
+const uploadResult = await client.uploadFile({
+  file: "/path/to/document.pdf",
+  fileName: "document.pdf",
+  mimeType: "application/pdf",
+});
+
+console.log("File key:", uploadResult.fileKey);
+console.log("Presigned URLs:", uploadResult.presignedUrls);
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Initiate upload (handled automatically by upload_file)
+upload_result = client.upload_file(
+    file="/path/to/document.pdf",
+    file_name="document.pdf",
+    mime_type="application/pdf"
+)
+
+print("File key:", upload_result.file_key)
+print("Presigned URLs:", upload_result.presigned_urls)
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Initiate upload (handled automatically by uploadFile)
+$uploadResult = $client->uploadFile([
+    'file' => '/path/to/document.pdf',
+    'file_name' => 'document.pdf',
+    'mime_type' => 'application/pdf',
+]);
+
+echo "File key: " . $uploadResult['file_key'] . "\n";
+echo "Presigned URLs: " . implode(', ', $uploadResult['presigned_urls']) . "\n";
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Initiate upload (handled automatically by upload_file)
+upload_result = client.upload_file(
+  file: '/path/to/document.pdf',
+  file_name: 'document.pdf',
+  mime_type: 'application/pdf'
+)
+
+puts "File key: #{upload_result[:file_key]}"
+puts "Presigned URLs: #{upload_result[:presigned_urls]}"
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Initiate upload (handled automatically by UploadFile)
+uploadResult, _ := client.UploadFile(d3.UploadFileOptions{
+    File:     "/path/to/document.pdf",
+    FileName: "document.pdf",
+    MimeType: "application/pdf",
+});
+
+fmt.Printf("File key: %s\n", uploadResult.FileKey)
+fmt.Printf("Presigned URLs: %v\n", uploadResult.PresignedURLs)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import com.d3.client.models.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Initiate upload (handled automatically by uploadFile)
+UploadResponse uploadResult = client.uploadFile(
+    new UploadFileOptions()
+        .setFile("/path/to/document.pdf")
+        .setFileName("document.pdf")
+        .setMimeType("application/pdf")
+);
+
+System.out.println("File key: " + uploadResult.getFileKey());
+System.out.println("Presigned URLs: " + uploadResult.getPresignedUrls());
+```
+
+</CodeGroup>
+
+- `file_name` (**required**) – original file name including extension.
+- `size` (**required**) – file size in bytes.
+- `mime_type` (**required**) – MIME type (e.g. `application/pdf`).
+- `parts` (optional) – multipart upload parts; defaults to `1` when omitted or zero.
+
+**Response (`ExternalUploadResponse`):**
+
+```json
+{
+  "file_key": "file_key_123",
+  "object_name": "external/...",
+  "upload_id": "upload-id",
+  "presigned_urls": [
+    "https://minio.example.com/bucket/object?X-Amz-Signature=..."
+  ]
+}
+```
+
+- `file_key` – stable key to reference this file in later operations.
+- `object_name` – internal object name in MinIO.
+- `upload_id` – underlying multipart upload id (if applicable).
+- `presigned_urls` – list of `PUT` URLs to upload file parts.
+
+## Upload file contents
+
+Use the provided `presigned_urls` to upload file data directly to MinIO. For single‑part uploads there will be exactly one URL.
+
+<CodeGroup>
+```bash cURL
+# Upload file to presigned URL
+curl -X PUT "https://minio.example.com/bucket/object?X-Amz-Signature=..." \
+  -H "Content-Type: application/pdf" \
+  --data-binary "@document.pdf"
+```
+
+```ts NODE
+import axios from "axios";
+import * as fs from "fs";
+
+// Upload to presigned URL
+await axios.put(presignedUrl, fs.createReadStream("./document.pdf"), {
+  headers: {
+    "Content-Type": "application/pdf",
+  },
+});
+
+// Note: The SDK handles this automatically when using uploadFile()
+```
+
+```python PYTHON
+import requests
+
+# Upload to presigned URL
+with open("./document.pdf", "rb") as f:
+    requests.put(presigned_url, data=f, headers={"Content-Type": "application/pdf"})
+
+# Note: The SDK handles this automatically when using upload_file()
+```
+
+```php PHP
+// Upload to presigned URL
+$fileContent = file_get_contents("./document.pdf");
+$ch = curl_init($presignedUrl);
+curl_setopt($ch, CURLOPT_PUT, true);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/pdf"]);
+curl_setopt($ch, CURLOPT_INFILE, fopen("./document.pdf", "r"));
+curl_exec($ch);
+curl_close($ch);
+
+// Note: The SDK handles this automatically when using uploadFile()
+```
+
+```ruby RUBY
+require 'net/http'
+require 'uri'
+
+# Upload to presigned URL
+uri = URI(presigned_url)
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = true
+request = Net::HTTP::Put.new(uri.request_uri)
+request['Content-Type'] = 'application/pdf'
+request.body = File.read('./document.pdf')
+http.request(request)
+
+# Note: The SDK handles this automatically when using upload_file()
+```
+
+```go GO
+import (
+    "net/http"
+    "os"
+)
+
+// Upload to presigned URL
+file, _ := os.Open("./document.pdf")
+defer file.Close()
+
+req, _ := http.NewRequest("PUT", presignedURL, file)
+req.Header.Set("Content-Type", "application/pdf")
+http.DefaultClient.Do(req)
+
+// Note: The SDK handles this automatically when using UploadFile()
+```
+
+```java JAVA
+import okhttp3.*;
+import java.io.File;
+
+// Upload to presigned URL
+File file = new File("./document.pdf");
+RequestBody requestBody = RequestBody.create(file, MediaType.parse("application/pdf"));
+Request request = new Request.Builder()
+    .url(presignedUrl)
+    .put(requestBody)
+    .build();
+OkHttpClient client = new OkHttpClient();
+client.newCall(request).execute();
+
+// Note: The SDK handles this automatically when using uploadFile()
+```
+
+</CodeGroup>
+
+## Complete upload
+
+Once all parts have been uploaded, finalize the upload so that the file can be used by operations.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/complete-upload \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_key": "file_key_123"
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Note: uploadFile() automatically completes the upload
+// If you need to complete manually after multipart upload:
+// await client.completeUpload({ fileKey: "file_key_123" });
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Note: upload_file() automatically completes the upload
+# All steps are handled automatically by the SDK
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Note: uploadFile() automatically completes the upload
+// All steps are handled automatically by the SDK
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Note: upload_file() automatically completes the upload
+# All steps are handled automatically by the SDK
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Note: UploadFile() automatically completes the upload
+// All steps are handled automatically by the SDK
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Note: uploadFile() automatically completes the upload
+// All steps are handled automatically by the SDK
+```
+
+</CodeGroup>
+
+On success, the server persists metadata in the repository layer and the file becomes available for `/v1/biz/do` operations.

@@ -1,0 +1,73 @@
+---
+title: "Introduction"
+description: "Overview of the D3 Business API for file upload and processing."
+---
+
+# D3 Business API Documentation
+
+Welcome to the **D3 Business API** documentation! This comprehensive guide provides everything you need to integrate D3's powerful file processing capabilities into your applications.
+
+## What's in This Documentation
+
+This documentation goes beyond just API specifications. It provides:
+
+### 📚 **Complete API Reference**
+
+- Detailed endpoint documentation with request/response schemas
+- Authentication and rate limiting guidelines
+- Error handling and status codes
+- Webhook configuration and event payloads
+
+### 🚀 **Getting Started Guides**
+
+- **Quickstart** – Step-by-step tutorial to get you up and running in minutes
+- **Authentication** – Learn how to generate and use API keys
+- **SDK Documentation** – Official Node.js client library with TypeScript support
+
+### 💡 **Code Examples**
+
+- **Multilingual examples** – Every operation includes both `curl` and Node.js SDK examples
+- **Real-world workflows** – Complete end-to-end examples showing file upload, processing, and status checking
+- **Best practices** – Recommended patterns for production integrations
+
+### 🔧 **Developer Tools**
+
+- **API Key Management** – Create, manage, and monitor your API keys
+- **Webhook Configuration** – Set up async notifications for operation events
+- **Usage Analytics** – Track your API usage and quotas
+
+### 📖 **Architecture & Concepts**
+
+- System architecture overview
+- File upload flow with presigned URLs
+- Operation lifecycle and status tracking
+- Webhook delivery and retry mechanisms
+
+## About the D3 Business API
+
+The **D3 Business API** is a high‑throughput, file‑centric API for developers who want to integrate D3's conversion, compression, merge, zip, and PDF utilities directly into their products.
+
+At a high level the system consists of:
+
+- **API Routes** – Entry point for all external requests, applying IP filtering, authentication and rate limiting.
+- **Middleware** – API key authentication and token‑bucket rate limiting.
+- **External API Handler** – Upload, create operation, fetch status, and other business actions.
+- **Service Layer** – Uploads to MinIO, validates file types and ownership, and interfaces with the task system.
+- **Repository Layer** – Persists data in Postgres tables such as `developer_app_details`, `external_files`, `external_operations`, and `webhook_logs`.
+- **Task System** – Kafka‑powered distributed workers that do the actual file processing.
+- **Webhook Service** – Delivers async notifications with retry and HMAC signatures.
+
+## Key Capabilities
+
+- Upload any supported file type to regional MinIO storage.
+- Create **operations** such as convert, compress, merge, zip, share, lock/unlock/reset password.
+- Get operation **status** via polling or **webhooks**.
+- Manage **API keys** and **webhooks** via developer endpoints.
+
+All of these capabilities are exposed via the `/v1/biz` Business API surface and managed via `/v1/developer` endpoints on the same host.
+
+## Next Steps
+
+1. **New to D3?** Start with the [Quickstart](/docs/quickstart) guide
+2. **Ready to integrate?** Check out the [Business API Overview](/docs/business-api/overview)
+3. **Prefer SDKs?** Explore the [Node.js SDK](/docs/sdks/node) documentation

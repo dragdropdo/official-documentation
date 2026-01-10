@@ -1,0 +1,501 @@
+---
+title: "Status"
+description: "Check operation and per-file status via the Business API."
+---
+
+# Status
+
+The status endpoints let you track the lifecycle of operations created via `/v1/biz/do`.
+
+- `GET /v1/biz/status/:mainTaskId`
+- `GET /v1/biz/status/:mainTaskId/:fileTaskId`
+
+These routes are backed by the `ExternalStatusURI`, `ExternalStatusFileData`, and `ExternalStatusResponse` types.
+
+## Status schema
+
+```ts
+type ExternalStatusFileData = {
+  file_key: string; // resulting file key (output if available, otherwise input)
+  status: "queued" | "running" | "completed" | "failed";
+  download_link?: string; // relative path to download the output file
+  error_code?: string; // optional short failure code
+  error_message?: string; // optional human-readable message
+};
+
+type ExternalStatusResponse = {
+  operation_status: "queued" | "running" | "completed" | "failed";
+  files_data?: ExternalStatusFileData[];
+};
+```
+
+## Get main task status
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://api.d3.com/v1/biz/status/task_abc123 \
+  -H "X-D3-API-Key: your-api-key"
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Get status
+const status = await client.getStatus({
+  mainTaskId: "task_abc123",
+});
+
+console.log("Operation status:", status.operationStatus);
+if (status.operationStatus === "completed") {
+  status.filesData?.forEach((file) => {
+    console.log(`File ${file.fileKey}: ${file.downloadLink}`);
+  });
+}
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Get status
+status = client.get_status(main_task_id="task_abc123")
+
+print("Operation status:", status.operation_status)
+if status.operation_status == "completed":
+    for file in status.files_data:
+        print(f"File {file.file_key}: {file.download_link}")
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Get status
+$status = $client->getStatus(['main_task_id' => 'task_abc123']);
+
+echo "Operation status: " . $status['operation_status'] . "\n";
+if ($status['operation_status'] === 'completed') {
+    foreach ($status['files_data'] as $file) {
+        echo "File {$file['file_key']}: {$file['download_link']}\n";
+    }
+}
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Get status
+status = client.get_status(main_task_id: 'task_abc123')
+
+puts "Operation status: #{status[:operation_status]}"
+if status[:operation_status] == 'completed'
+  status[:files_data].each do |file|
+    puts "File #{file[:file_key]}: #{file[:download_link]}"
+  end
+end
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Get status
+status, _ := client.GetStatus(d3.StatusOptions{
+    MainTaskID: "task_abc123",
+});
+
+fmt.Printf("Operation status: %s\n", status.OperationStatus)
+if status.OperationStatus == "completed" {
+    for _, file := range status.FilesData {
+        fmt.Printf("File %s: %s\n", file.FileKey, file.DownloadLink)
+    }
+}
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import com.d3.client.models.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Get status
+StatusResponse status = client.getStatus(
+    new StatusOptions().setMainTaskId("task_abc123")
+);
+
+System.out.println("Operation status: " + status.getOperationStatus());
+if ("completed".equals(status.getOperationStatus())) {
+    status.getFilesData().forEach(file ->
+        System.out.println("File " + file.getFileKey() + ": " + file.getDownloadLink())
+    );
+}
+```
+
+</CodeGroup>
+
+**Response (completed):**
+
+```json
+{
+  "operation_status": "completed",
+  "files_data": [
+    {
+      "file_key": "file_key_1_result",
+      "status": "completed",
+      "download_link": "/v1/download/file_key_1_result"
+    },
+    {
+      "file_key": "file_key_2_result",
+      "status": "completed",
+      "download_link": "/v1/download/file_key_2_result"
+    }
+  ]
+}
+```
+
+**Response (failed):**
+
+```json
+{
+  "operation_status": "failed",
+  "files_data": [
+    {
+      "file_key": "file_key_1",
+      "status": "failed",
+      "error_code": "internal_error",
+      "error_message": "Internal server error / invalid input file"
+    }
+  ]
+}
+```
+
+## Get specific file task status
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://api.d3.com/v1/biz/status/task_abc123/file_task_xyz \
+  -H "X-D3-API-Key: your-api-key"
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Get specific file task status
+const status = await client.getStatus({
+  mainTaskId: "task_abc123",
+  fileTaskId: "file_task_xyz",
+});
+
+console.log("File status:", status.filesData?.[0]?.status);
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Get specific file task status
+status = client.get_status(
+    main_task_id="task_abc123",
+    file_task_id="file_task_xyz"
+)
+
+print("File status:", status.files_data[0].status if status.files_data else None)
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Get specific file task status
+$status = $client->getStatus([
+    'main_task_id' => 'task_abc123',
+    'file_task_id' => 'file_task_xyz',
+]);
+
+echo "File status: " . ($status['files_data'][0]['status'] ?? 'N/A') . "\n";
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Get specific file task status
+status = client.get_status(
+  main_task_id: 'task_abc123',
+  file_task_id: 'file_task_xyz'
+)
+
+puts "File status: #{status[:files_data]&.first&.dig(:status)}"
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Get specific file task status
+status, _ := client.GetStatus(d3.StatusOptions{
+    MainTaskID: "task_abc123",
+    FileTaskID: "file_task_xyz",
+});
+
+if len(status.FilesData) > 0 {
+    fmt.Printf("File status: %s\n", status.FilesData[0].Status)
+}
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import com.d3.client.models.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Get specific file task status
+StatusResponse status = client.getStatus(
+    new StatusOptions()
+        .setMainTaskId("task_abc123")
+        .setFileTaskId("file_task_xyz")
+);
+
+if (!status.getFilesData().isEmpty()) {
+    System.out.println("File status: " + status.getFilesData().get(0).getStatus());
+}
+```
+
+</CodeGroup>
+
+When `fileTaskId` is present, the response narrows to the matching file task (if found).
+
+## Polling vs. webhooks
+
+- **Polling** – use the status endpoints from your backend or via the official SDK (see **SDKs → Node**).
+- **Webhooks** – for production workloads, configure webhooks to receive `operation.completed`, `operation.failed`, `fileTask.completed`, and `fileTask.failed` events instead of (or in addition to) polling.
+
+### Polling example
+
+<CodeGroup>
+```bash cURL
+# Poll in a loop (bash example)
+while true; do
+  response=$(curl -s -X GET https://api.d3.com/v1/biz/status/task_abc123 \
+    -H "X-D3-API-Key: your-api-key")
+  
+  status=$(echo $response | jq -r '.operation_status')
+  echo "Status: $status"
+  
+  if [ "$status" = "completed" ] || [ "$status" = "failed" ]; then
+    echo $response | jq '.'
+    break
+  fi
+  
+  sleep 2
+done
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Poll until completion
+const status = await client.pollStatus({
+  mainTaskId: "task_abc123",
+  interval: 2000, // Check every 2 seconds
+  timeout: 300000, // 5 minutes max
+  onUpdate: (status) => {
+    console.log("Status:", status.operationStatus);
+  },
+});
+
+if (status.operationStatus === "completed") {
+  console.log("Operation completed!");
+  status.filesData?.forEach((file) => {
+    console.log(`Download: ${file.downloadLink}`);
+  });
+}
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Poll until completion
+status = client.poll_status(
+    main_task_id="task_abc123",
+    interval=2000,  # Check every 2 seconds
+    timeout=300000,  # 5 minutes max
+    on_update=lambda s: print(f"Status: {s.operation_status}")
+)
+
+if status.operation_status == "completed":
+    print("Operation completed!")
+    for file in status.files_data:
+        print(f"Download: {file.download_link}")
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Poll until completion
+$status = $client->pollStatus([
+    'main_task_id' => 'task_abc123',
+    'interval' => 2000, // Check every 2 seconds
+    'timeout' => 300000, // 5 minutes max
+    'on_update' => function($status) {
+        echo "Status: " . $status['operation_status'] . "\n";
+    },
+]);
+
+if ($status['operation_status'] === 'completed') {
+    echo "Operation completed!\n";
+    foreach ($status['files_data'] as $file) {
+        echo "Download: " . $file['download_link'] . "\n";
+    }
+}
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Poll until completion
+status = client.poll_status(
+  main_task_id: 'task_abc123',
+  interval: 2000, # Check every 2 seconds
+  timeout: 300000, # 5 minutes max
+  on_update: ->(s) { puts "Status: #{s[:operation_status]}" }
+)
+
+if status[:operation_status] == 'completed'
+  puts "Operation completed!"
+  status[:files_data].each do |file|
+    puts "Download: #{file[:download_link]}"
+  end
+end
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+import "time"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Poll until completion
+status, _ := client.PollStatus(d3.PollStatusOptions{
+    StatusOptions: d3.StatusOptions{
+        MainTaskID: "task_abc123",
+    },
+    Interval: 2 * time.Second, // Check every 2 seconds
+    Timeout:  5 * time.Minute, // 5 minutes max
+    OnUpdate: func(s d3.StatusResponse) {
+        fmt.Printf("Status: %s\n", s.OperationStatus)
+    },
+});
+
+if status.OperationStatus == "completed" {
+    fmt.Println("Operation completed!")
+    for _, file := range status.FilesData {
+        fmt.Printf("Download: %s\n", file.DownloadLink)
+    }
+}
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import com.d3.client.models.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Poll until completion
+StatusResponse status = client.pollStatus(
+    new PollStatusOptions()
+        .setMainTaskId("task_abc123")
+        .setInterval(2000) // Check every 2 seconds
+        .setTimeout(300000) // 5 minutes max
+        .setOnUpdate(s -> System.out.println("Status: " + s.getOperationStatus()))
+);
+
+if ("completed".equals(status.getOperationStatus())) {
+    System.out.println("Operation completed!");
+    status.getFilesData().forEach(file ->
+        System.out.println("Download: " + file.getDownloadLink())
+    );
+}
+```
+
+</CodeGroup>
+
+See **Business API → Webhooks** for event payload shapes.

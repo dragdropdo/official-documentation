@@ -1,0 +1,1200 @@
+---
+title: "Operations"
+description: "Create file operations such as convert, compress, merge, zip, and PDF utilities."
+---
+
+# Operations
+
+Operations are created via:
+
+```http
+POST /v1/biz/do
+X-D3-API-Key: <your-api-key>
+Content-Type: application/json
+```
+
+## Request schema (`ExternalDoRequest`)
+
+```json
+{
+  "action": "convert",
+  "file_keys": ["file_key_1", "file_key_2"],
+  "parameters": {
+    "convert_to": "png"
+  },
+  "notes": {
+    "user_id": "user-123",
+    "source": "api"
+  }
+}
+```
+
+- `action` (**required**) – the operation to perform:
+  - `"convert"`
+  - `"compress"`
+  - `"merge"`
+  - `"zip"`
+  - `"share"`
+  - `"lock"`
+  - `"unlock"`
+  - `"reset_password"`
+- `file_keys` (**required**) – array of one or more file keys returned by upload.
+- `parameters` (optional) – action‑specific parameters (see below).
+- `notes` (optional) – arbitrary key‑value metadata persisted alongside the external operation.
+
+**Response (`ExternalDoResponse`):**
+
+```json
+{
+  "main_task_id": "task_abc123"
+}
+```
+
+Use `main_task_id` for status polling and correlating webhook notifications.
+
+## Create an operation
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "convert",
+    "file_keys": ["file_key_1"],
+    "parameters": {
+      "convert_to": "png"
+    },
+    "notes": {
+      "user_id": "user-123",
+      "source": "api"
+    }
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Using convenience method
+const operation = await client.convert(["file_key_1"], "png", {
+  user_id: "user-123",
+  source: "api",
+});
+
+// Or using createOperation
+const operation = await client.createOperation({
+  action: "convert",
+  fileKeys: ["file_key_1"],
+  parameters: {
+    convert_to: "png",
+  },
+  notes: {
+    user_id: "user-123",
+    source: "api",
+  },
+});
+
+console.log("Main task ID:", operation.mainTaskId);
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Using convenience method
+operation = client.convert(
+    file_keys=["file_key_1"],
+    convert_to="png",
+    notes={"user_id": "user-123", "source": "api"}
+)
+
+# Or using create_operation
+operation = client.create_operation(
+    action="convert",
+    file_keys=["file_key_1"],
+    parameters={"convert_to": "png"},
+    notes={"user_id": "user-123", "source": "api"}
+)
+
+print("Main task ID:", operation.main_task_id)
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Using convenience method
+$operation = $client->convert(
+    ['file_key_1'],
+    'png',
+    ['user_id' => 'user-123', 'source' => 'api']
+);
+
+// Or using createOperation
+$operation = $client->createOperation([
+    'action' => 'convert',
+    'file_keys' => ['file_key_1'],
+    'parameters' => ['convert_to' => 'png'],
+    'notes' => ['user_id' => 'user-123', 'source' => 'api'],
+]);
+
+echo "Main task ID: " . $operation['main_task_id'] . "\n";
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Using convenience method
+operation = client.convert(
+  file_keys: ['file_key_1'],
+  convert_to: 'png',
+  notes: { user_id: 'user-123', source: 'api' }
+)
+
+# Or using create_operation
+operation = client.create_operation(
+  action: 'convert',
+  file_keys: ['file_key_1'],
+  parameters: { convert_to: 'png' },
+  notes: { user_id: 'user-123', source: 'api' }
+)
+
+puts "Main task ID: #{operation[:main_task_id]}"
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Using convenience method
+operation, _ := client.Convert(
+    []string{"file_key_1"},
+    "png",
+    map[string]string{"user_id": "user-123", "source": "api"},
+);
+
+// Or using CreateOperation
+operation, _ := client.CreateOperation(d3.OperationOptions{
+    Action:   "convert",
+    FileKeys: []string{"file_key_1"},
+    Parameters: map[string]interface{}{
+        "convert_to": "png",
+    },
+    Notes: map[string]string{"user_id": "user-123", "source": "api"},
+});
+
+fmt.Printf("Main task ID: %s\n", operation.MainTaskID)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import com.d3.client.models.*;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Using convenience method
+OperationResponse operation = client.convert(
+    List.of("file_key_1"),
+    "png",
+    Map.of("user_id", "user-123", "source", "api")
+);
+
+// Or using createOperation
+operation = client.createOperation(new OperationOptions(
+    "convert",
+    List.of("file_key_1"),
+    Map.of("convert_to", "png"),
+    Map.of("user_id", "user-123", "source", "api")
+));
+
+System.out.println("Main task ID: " + operation.getMainTaskId());
+```
+
+</CodeGroup>
+
+## Supported operations
+
+Before creating an operation, you can validate that a given extension and action are supported:
+
+<CodeGroup>
+```bash cURL
+curl -X GET "https://api.d3.com/v1/biz/supported-operation?ext=pdf&action=convert&convert_to=png" \
+  -H "X-D3-API-Key: your-api-key"
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Check if convert to PNG is supported
+const supported = await client.checkSupportedOperation({
+  ext: "pdf",
+  action: "convert",
+  parameters: { convert_to: "png" },
+});
+
+console.log("Supported:", supported.supported);
+console.log("Available actions:", supported.availableActions);
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Check if convert to PNG is supported
+supported = client.check_supported_operation(
+    ext="pdf",
+    action="convert",
+    parameters={"convert_to": "png"}
+)
+
+print("Supported:", supported.supported)
+print("Available actions:", supported.available_actions)
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Check if convert to PNG is supported
+$supported = $client->checkSupportedOperation([
+    'ext' => 'pdf',
+    'action' => 'convert',
+    'parameters' => ['convert_to' => 'png'],
+]);
+
+echo "Supported: " . ($supported['supported'] ? 'true' : 'false') . "\n";
+echo "Available actions: " . implode(', ', $supported['available_actions']) . "\n";
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Check if convert to PNG is supported
+supported = client.check_supported_operation(
+  ext: 'pdf',
+  action: 'convert',
+  parameters: { convert_to: 'png' }
+)
+
+puts "Supported: #{supported[:supported]}"
+puts "Available actions: #{supported[:available_actions]}"
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Check if convert to PNG is supported
+supported, _ := client.CheckSupportedOperation(d3.SupportedOperationOptions{
+    Ext:    "pdf",
+    Action: "convert",
+    Parameters: map[string]interface{}{
+        "convert_to": "png",
+    },
+});
+
+fmt.Printf("Supported: %t\n", supported.Supported)
+fmt.Printf("Available actions: %v\n", supported.AvailableActions)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import com.d3.client.models.*;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Check if convert to PNG is supported
+SupportedOperationResponse supported = client.checkSupportedOperation(
+    new SupportedOperationOptions()
+        .setExt("pdf")
+        .setAction("convert")
+        .setParameters(Map.of("convert_to", "png"))
+);
+
+System.out.println("Supported: " + supported.isSupported());
+System.out.println("Available actions: " + supported.getAvailableActions());
+```
+
+</CodeGroup>
+
+Server‑side this is backed by `SupportedOperationRequest` / `SupportedOperationResponse`:
+
+```ts
+type SupportedOperationRequest = {
+  ext: string;
+  action?: string;
+  parameters?: Record<string, unknown>;
+};
+
+type SupportedOperationResponse = {
+  supported: boolean;
+  ext: string;
+  action?: string;
+  available_actions?: string[];
+  parameters?: Record<string, unknown>;
+};
+```
+
+Example responses:
+
+- **Only `ext` provided** – returns `available_actions` for that extension.
+- **`ext` + `action`** – returns `supported` + `parameters` metadata, such as:
+  - valid `convert_to` targets for `convert`
+  - valid `compression_value` options for `compress`
+
+## Action‑specific parameters
+
+### Convert
+
+- `convert_to` (**required**) – target format (e.g. `pdf`, `png`, `docx`).
+
+Common use cases:
+
+- Document: `docx → pdf`, `pdf → docx`, `pptx → pdf`.
+- Image: `jpg → png`, `png → webp`.
+- Media: `mp4 → mp3`, `wav → mp3`.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "convert",
+    "file_keys": ["file_key_1"],
+    "parameters": {
+      "convert_to": "pdf"
+    }
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Convert PDF to PNG
+const operation = await client.convert(["file_key_1"], "png");
+
+// Convert DOCX to PDF
+const operation = await client.convert(["file_key_1"], "pdf");
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Convert PDF to PNG
+operation = client.convert(["file_key_1"], "png")
+
+# Convert DOCX to PDF
+operation = client.convert(["file_key_1"], "pdf")
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Convert PDF to PNG
+$operation = $client->convert(['file_key_1'], 'png');
+
+// Convert DOCX to PDF
+$operation = $client->convert(['file_key_1'], 'pdf');
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Convert PDF to PNG
+operation = client.convert(file_keys: ['file_key_1'], convert_to: 'png')
+
+# Convert DOCX to PDF
+operation = client.convert(file_keys: ['file_key_1'], convert_to: 'pdf')
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Convert PDF to PNG
+operation, _ := client.Convert([]string{"file_key_1"}, "png", nil)
+
+// Convert DOCX to PDF
+operation, _ := client.Convert([]string{"file_key_1"}, "pdf", nil)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Convert PDF to PNG
+OperationResponse operation = client.convert(List.of("file_key_1"), "png", null);
+
+// Convert DOCX to PDF
+operation = client.convert(List.of("file_key_1"), "pdf", null);
+```
+
+</CodeGroup>
+
+### Compress
+
+- `compression_value` – compression level such as `recommended`, `high`, or `low` (see supported‑operation metadata).
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "compress",
+    "file_keys": ["file_key_1"],
+    "parameters": {
+      "compression_value": "recommended"
+    }
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Compress with recommended level
+const operation = await client.compress(["file_key_1"], "recommended");
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Compress with recommended level
+operation = client.compress(["file_key_1"], "recommended")
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Compress with recommended level
+$operation = $client->compress(['file_key_1'], 'recommended');
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Compress with recommended level
+operation = client.compress(file_keys: ['file_key_1'], compression_value: 'recommended')
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Compress with recommended level
+operation, _ := client.Compress([]string{"file_key_1"}, "recommended", nil)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Compress with recommended level
+OperationResponse operation = client.compress(List.of("file_key_1"), "recommended", null);
+```
+
+</CodeGroup>
+
+### Merge
+
+Merges multiple compatible files (typically PDFs) into a single output file.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "merge",
+    "file_keys": ["file_key_1", "file_key_2"]
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Merge multiple PDFs
+const operation = await client.merge(["file_key_1", "file_key_2"]);
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Merge multiple PDFs
+operation = client.merge(["file_key_1", "file_key_2"])
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Merge multiple PDFs
+$operation = $client->merge(['file_key_1', 'file_key_2']);
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Merge multiple PDFs
+operation = client.merge(file_keys: ['file_key_1', 'file_key_2'])
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Merge multiple PDFs
+operation, _ := client.Merge([]string{"file_key_1", "file_key_2"}, nil)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Merge multiple PDFs
+OperationResponse operation = client.merge(List.of("file_key_1", "file_key_2"), null);
+```
+
+</CodeGroup>
+
+### Zip
+
+Creates a zip archive containing the given files.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "zip",
+    "file_keys": ["file_key_1", "file_key_2"]
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Create zip archive
+const operation = await client.zip(["file_key_1", "file_key_2"]);
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Create zip archive
+operation = client.zip(["file_key_1", "file_key_2"])
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Create zip archive
+$operation = $client->zip(['file_key_1', 'file_key_2']);
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Create zip archive
+operation = client.zip(file_keys: ['file_key_1', 'file_key_2'])
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Create zip archive
+operation, _ := client.Zip([]string{"file_key_1", "file_key_2"}, nil)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Create zip archive
+OperationResponse operation = client.zip(List.of("file_key_1", "file_key_2"), null);
+```
+
+</CodeGroup>
+
+### Share
+
+Generates shareable links for the specified files. Additional behavior may be controlled via `notes`.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "share",
+    "file_keys": ["file_key_1"],
+    "notes": {
+      "expires_in_days": "7"
+    }
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Generate shareable links
+const operation = await client.share(["file_key_1"], {
+  expires_in_days: "7",
+});
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Generate shareable links
+operation = client.share(["file_key_1"], notes={"expires_in_days": "7"})
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Generate shareable links
+$operation = $client->share(['file_key_1'], ['expires_in_days' => '7']);
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Generate shareable links
+operation = client.share(file_keys: ['file_key_1'], notes: { expires_in_days: '7' })
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Generate shareable links
+operation, _ := client.Share(
+    []string{"file_key_1"},
+    map[string]string{"expires_in_days": "7"},
+)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Generate shareable links
+OperationResponse operation = client.share(
+    List.of("file_key_1"),
+    Map.of("expires_in_days", "7")
+);
+```
+
+</CodeGroup>
+
+### Lock PDF
+
+Protects PDFs with a password.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "lock",
+    "file_keys": ["file_key_1"],
+    "parameters": {
+      "password": "secure-password"
+    }
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Lock PDF with password
+const operation = await client.lockPdf(["file_key_1"], "secure-password");
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Lock PDF with password
+operation = client.lock_pdf(["file_key_1"], "secure-password")
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Lock PDF with password
+$operation = $client->lockPdf(['file_key_1'], 'secure-password');
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Lock PDF with password
+operation = client.lock_pdf(file_keys: ['file_key_1'], password: 'secure-password')
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Lock PDF with password
+operation, _ := client.LockPdf([]string{"file_key_1"}, "secure-password", nil)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Lock PDF with password
+OperationResponse operation = client.lockPdf(List.of("file_key_1"), "secure-password", null);
+```
+
+</CodeGroup>
+
+### Unlock PDF
+
+Removes password protection from PDFs.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "unlock",
+    "file_keys": ["file_key_1"],
+    "parameters": {
+      "password": "current-password"
+    }
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Unlock PDF
+const operation = await client.unlockPdf(["file_key_1"], "current-password");
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Unlock PDF
+operation = client.unlock_pdf(["file_key_1"], "current-password")
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Unlock PDF
+$operation = $client->unlockPdf(['file_key_1'], 'current-password');
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Unlock PDF
+operation = client.unlock_pdf(file_keys: ['file_key_1'], password: 'current-password')
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Unlock PDF
+operation, _ := client.UnlockPdf([]string{"file_key_1"}, "current-password", nil)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Unlock PDF
+OperationResponse operation = client.unlockPdf(List.of("file_key_1"), "current-password", null);
+```
+
+</CodeGroup>
+
+### Reset PDF password
+
+Changes the password on password‑protected PDFs.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.d3.com/v1/biz/do \
+  -H "X-D3-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "reset_password",
+    "file_keys": ["file_key_1"],
+    "parameters": {
+      "old_password": "old",
+      "new_password": "new"
+    }
+  }'
+```
+
+```ts NODE
+import { D3Client } from "d3-node-client";
+
+const client = new D3Client({
+  apiKey: "your-api-key",
+  baseURL: "https://api.d3.com",
+});
+
+// Reset PDF password
+const operation = await client.resetPdfPassword(
+  ["file_key_1"],
+  "old-password",
+  "new-password"
+);
+```
+
+```python PYTHON
+from d3_client import D3Client, D3ClientConfig
+
+client = D3Client(
+    api_key="your-api-key",
+    base_url="https://api.d3.com"
+)
+
+# Reset PDF password
+operation = client.reset_pdf_password(
+    ["file_key_1"],
+    "old-password",
+    "new-password"
+)
+```
+
+```php PHP
+use D3\D3Client;
+
+$client = new D3Client([
+    'api_key' => 'your-api-key',
+    'base_url' => 'https://api.d3.com',
+]);
+
+// Reset PDF password
+$operation = $client->resetPdfPassword(['file_key_1'], 'old-password', 'new-password');
+```
+
+```ruby RUBY
+require 'd3_ruby_client'
+
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key',
+  base_url: 'https://api.d3.com'
+)
+
+# Reset PDF password
+operation = client.reset_pdf_password(
+  file_keys: ['file_key_1'],
+  old_password: 'old-password',
+  new_password: 'new-password'
+)
+```
+
+```go GO
+import "github.com/d3/d3-go-client"
+
+client, _ := d3.NewClient(d3.Config{
+    APIKey:  "your-api-key",
+    BaseURL: "https://api.d3.com",
+});
+
+// Reset PDF password
+operation, _ := client.ResetPdfPassword(
+    []string{"file_key_1"},
+    "old-password",
+    "new-password",
+    nil,
+)
+```
+
+```java JAVA
+import com.d3.client.D3Client;
+import com.d3.client.D3ClientConfig;
+import java.util.*;
+
+D3Client client = new D3Client(
+    new D3ClientConfig("your-api-key")
+        .setBaseUrl("https://api.d3.com")
+);
+
+// Reset PDF password
+OperationResponse operation = client.resetPdfPassword(
+    List.of("file_key_1"),
+    "old-password",
+    "new-password",
+    null
+);
+```
+
+</CodeGroup>

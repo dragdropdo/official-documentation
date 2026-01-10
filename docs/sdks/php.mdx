@@ -1,0 +1,241 @@
+---
+title: "PHP SDK"
+description: "Official PHP client for the D3 Business API."
+---
+
+# PHP SDK
+
+The official `d3/d3-php-client` package provides a high‑level interface to the D3 Business API.
+
+## Installation
+
+```bash
+composer require d3/d3-php-client
+```
+
+## Quick start
+
+```php
+<?php
+require 'vendor/autoload.php';
+
+use D3\D3Client;
+
+// Initialize the client
+$client = new D3Client([
+    'api_key' => 'your-api-key-here',
+    'base_url' => 'https://api.d3.com', // Optional, defaults to https://api.d3.com
+    'timeout' => 30000 // Optional, defaults to 30000ms
+]);
+
+// Upload a file
+$uploadResult = $client->uploadFile([
+    'file' => '/path/to/document.pdf',
+    'file_name' => 'document.pdf',
+    'mime_type' => 'application/pdf',
+]);
+
+echo "File key: " . $uploadResult['file_key'] . "\n";
+```
+
+## Initialization
+
+```php
+new D3Client(array $config)
+```
+
+**Config:**
+
+- `api_key` (**required**) – your D3 API key.
+- `base_url` (optional) – API base URL, default: `https://api.d3.com`.
+- `timeout` (optional) – request timeout in ms, default: `30000`.
+- `headers` (optional) – additional headers to send with every request.
+
+## File upload
+
+```php
+uploadFile(array $options): array
+```
+
+**Options:**
+
+- `file` (**required**) – file path string.
+- `file_name` (**required**) – original file name.
+- `mime_type` (optional) – MIME type (auto‑detected if omitted).
+- `parts` (optional) – number of upload parts (auto‑calculated).
+- `on_progress` (optional) – progress callback.
+
+Example:
+
+```php
+$result = $client->uploadFile([
+    'file' => '/path/to/file.pdf',
+    'file_name' => 'document.pdf',
+    'mime_type' => 'application/pdf',
+    'on_progress' => function($progress) {
+        echo "Upload: {$progress['percentage']}%\n";
+    }
+]);
+```
+
+## Supported operations
+
+```php
+checkSupportedOperation(array $options): array
+```
+
+**Options:**
+
+- `ext` (**required**) – file extension (e.g. `pdf`, `jpg`).
+- `action` (optional) – specific action (`convert`, `compress`, ...).
+- `parameters` (optional) – parameters to validate (e.g. `['convert_to' => 'png']`).
+
+Examples:
+
+```php
+// Get available actions for PDF
+$actions = $client->checkSupportedOperation(['ext' => 'pdf']);
+echo implode(', ', $actions['available_actions']) . "\n";
+
+// Check if convert to PNG is supported
+$supported = $client->checkSupportedOperation([
+    'ext' => 'pdf',
+    'action' => 'convert',
+    'parameters' => ['convert_to' => 'png']
+]);
+echo "Supported: " . ($supported['supported'] ? 'true' : 'false') . "\n";
+```
+
+## Create operations
+
+```php
+createOperation(array $options): array
+```
+
+**Options:**
+
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `file_keys` (**required**) – array of file keys from upload.
+- `parameters` (optional) – action‑specific parameters.
+- `notes` (optional) – user metadata.
+
+Examples:
+
+```php
+// Convert PDF to PNG
+$client->createOperation([
+    'action' => 'convert',
+    'file_keys' => [$uploadResult['file_key']],
+    'parameters' => ['convert_to' => 'png'],
+    'notes' => ['userId' => 'user-123']
+]);
+
+// Compress
+$client->createOperation([
+    'action' => 'compress',
+    'file_keys' => [$uploadResult['file_key']],
+    'parameters' => ['compression_value' => 'recommended']
+]);
+```
+
+### Convenience helpers
+
+The client exposes shorthand helpers:
+
+```php
+$client->convert($fileKeys, $convertTo, $notes = null);
+$client->compress($fileKeys, $compressionValue = 'recommended', $notes = null);
+$client->merge($fileKeys, $notes = null);
+$client->zip($fileKeys, $notes = null);
+$client->share($fileKeys, $notes = null);
+$client->lockPdf($fileKeys, $password, $notes = null);
+$client->unlockPdf($fileKeys, $password, $notes = null);
+$client->resetPdfPassword($fileKeys, $oldPassword, $newPassword, $notes = null);
+```
+
+## Status & polling
+
+```php
+getStatus(array $options): array
+pollStatus(array $options): array
+```
+
+Examples:
+
+```php
+// Single status fetch
+$status = $client->getStatus(['main_task_id' => 'task-123']);
+
+// Poll until completion
+$finalStatus = $client->pollStatus([
+    'main_task_id' => 'task-123',
+    'interval' => 2000,
+    'timeout' => 300000,
+    'on_update' => function($status) {
+        echo "Status: {$status['operation_status']}\n";
+    }
+]);
+```
+
+## Complete workflow example
+
+```php
+<?php
+require 'vendor/autoload.php';
+
+use D3\D3Client;
+use D3\Exceptions\D3APIError;
+use D3\Exceptions\D3ValidationError;
+
+function processFile() {
+    $client = new D3Client([
+        'api_key' => getenv('D3_API_KEY'),
+        'base_url' => 'https://api.d3.com'
+    ]);
+
+    try {
+        // 1. Upload
+        $uploadResult = $client->uploadFile([
+            'file' => './document.pdf',
+            'file_name' => 'document.pdf'
+        ]);
+
+        // 2. Check support
+        $supported = $client->checkSupportedOperation([
+            'ext' => 'pdf',
+            'action' => 'convert',
+            'parameters' => ['convert_to' => 'png']
+        ]);
+        if (!$supported['supported']) {
+            throw new Exception('Convert to PNG is not supported');
+        }
+
+        // 3. Create operation
+        $operation = $client->convert(
+            [$uploadResult['file_key']],
+            'png',
+            ['userId' => 'user-123', 'source' => 'api']
+        );
+
+        // 4. Poll
+        $status = $client->pollStatus([
+            'main_task_id' => $operation['main_task_id'],
+            'interval' => 2000
+        ]);
+
+        if ($status['operation_status'] === 'completed') {
+            foreach ($status['files_data'] as $file) {
+                echo "Download: {$file['download_link']}\n";
+            }
+        }
+    } catch (D3APIError $e) {
+        echo "API Error ({$e->getStatusCode()}): {$e->getMessage()}\n";
+    } catch (D3ValidationError $e) {
+        echo "Validation Error: {$e->getMessage()}\n";
+    } catch (Exception $e) {
+        echo "Error: {$e->getMessage()}\n";
+    }
+}
+
+processFile();
+```

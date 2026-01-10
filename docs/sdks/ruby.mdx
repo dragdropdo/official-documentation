@@ -1,0 +1,243 @@
+---
+title: "Ruby SDK"
+description: "Official Ruby client for the D3 Business API."
+---
+
+# Ruby SDK
+
+The official `d3-ruby-client` gem provides a high‑level interface to the D3 Business API.
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'd3-ruby-client'
+```
+
+And then execute:
+
+```bash
+bundle install
+```
+
+Or install it yourself as:
+
+```bash
+gem install d3-ruby-client
+```
+
+## Quick start
+
+```ruby
+require 'd3_ruby_client'
+
+# Initialize the client
+client = D3RubyClient::Client.new(
+  api_key: 'your-api-key-here',
+  base_url: 'https://api.d3.com', # Optional, defaults to https://api.d3.com
+  timeout: 30000 # Optional, defaults to 30000ms
+)
+
+# Upload a file
+upload_result = client.upload_file(
+  file: '/path/to/document.pdf',
+  file_name: 'document.pdf',
+  mime_type: 'application/pdf'
+)
+
+puts "File key: #{upload_result[:file_key]}"
+```
+
+## Initialization
+
+```ruby
+D3RubyClient::Client.new(api_key:, base_url: nil, timeout: 30000, headers: {})
+```
+
+**Parameters:**
+
+- `api_key` (**required**) – your D3 API key.
+- `base_url` (optional) – API base URL, default: `https://api.d3.com`.
+- `timeout` (optional) – request timeout in ms, default: `30000`.
+- `headers` (optional) – additional headers to send with every request.
+
+## File upload
+
+```ruby
+upload_file(file:, file_name:, mime_type: nil, parts: nil, on_progress: nil)
+```
+
+**Parameters:**
+
+- `file` (**required**) – file path string.
+- `file_name` (**required**) – original file name.
+- `mime_type` (optional) – MIME type (auto‑detected if omitted).
+- `parts` (optional) – number of upload parts (auto‑calculated).
+- `on_progress` (optional) – progress callback (Proc).
+
+Example:
+
+```ruby
+result = client.upload_file(
+  file: '/path/to/file.pdf',
+  file_name: 'document.pdf',
+  mime_type: 'application/pdf',
+  on_progress: ->(progress) { puts "Upload: #{progress[:percentage]}%" }
+)
+```
+
+## Supported operations
+
+```ruby
+check_supported_operation(ext:, action: nil, parameters: nil)
+```
+
+**Parameters:**
+
+- `ext` (**required**) – file extension (e.g. `pdf`, `jpg`).
+- `action` (optional) – specific action (`convert`, `compress`, ...).
+- `parameters` (optional) – parameters to validate (e.g. `{ convert_to: 'png' }`).
+
+Examples:
+
+```ruby
+# Get available actions for PDF
+actions = client.check_supported_operation(ext: 'pdf')
+puts actions[:available_actions]
+
+# Check if convert to PNG is supported
+supported = client.check_supported_operation(
+  ext: 'pdf',
+  action: 'convert',
+  parameters: { convert_to: 'png' }
+)
+puts "Supported: #{supported[:supported]}"
+```
+
+## Create operations
+
+```ruby
+create_operation(action:, file_keys:, parameters: nil, notes: nil)
+```
+
+**Parameters:**
+
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `file_keys` (**required**) – array of file keys from upload.
+- `parameters` (optional) – action‑specific parameters.
+- `notes` (optional) – user metadata.
+
+Examples:
+
+```ruby
+# Convert PDF to PNG
+client.create_operation(
+  action: 'convert',
+  file_keys: [upload_result[:file_key]],
+  parameters: { convert_to: 'png' },
+  notes: { userId: 'user-123' }
+)
+
+# Compress
+client.create_operation(
+  action: 'compress',
+  file_keys: [upload_result[:file_key]],
+  parameters: { compression_value: 'recommended' }
+)
+```
+
+### Convenience helpers
+
+The client exposes shorthand helpers:
+
+```ruby
+client.convert(file_keys:, convert_to:, notes: nil)
+client.compress(file_keys:, compression_value: 'recommended', notes: nil)
+client.merge(file_keys:, notes: nil)
+client.zip(file_keys:, notes: nil)
+client.share(file_keys:, notes: nil)
+client.lock_pdf(file_keys:, password:, notes: nil)
+client.unlock_pdf(file_keys:, password:, notes: nil)
+client.reset_pdf_password(file_keys:, old_password:, new_password:, notes: nil)
+```
+
+## Status & polling
+
+```ruby
+get_status(main_task_id:, file_task_id: nil)
+poll_status(main_task_id:, file_task_id: nil, interval: 2000, timeout: 300000, on_update: nil)
+```
+
+Examples:
+
+```ruby
+# Single status fetch
+status = client.get_status(main_task_id: 'task-123')
+
+# Poll until completion
+final_status = client.poll_status(
+  main_task_id: 'task-123',
+  interval: 2000,
+  timeout: 300000,
+  on_update: ->(status) { puts "Status: #{status[:operation_status]}" }
+)
+```
+
+## Complete workflow example
+
+```ruby
+require 'd3_ruby_client'
+
+def process_file
+  client = D3RubyClient::Client.new(
+    api_key: ENV['D3_API_KEY'],
+    base_url: 'https://api.d3.com'
+  )
+
+  begin
+    # 1. Upload
+    upload_result = client.upload_file(
+      file: './document.pdf',
+      file_name: 'document.pdf'
+    )
+
+    # 2. Check support
+    supported = client.check_supported_operation(
+      ext: 'pdf',
+      action: 'convert',
+      parameters: { convert_to: 'png' }
+    )
+    unless supported[:supported]
+      raise 'Convert to PNG is not supported'
+    end
+
+    # 3. Create operation
+    operation = client.convert(
+      file_keys: [upload_result[:file_key]],
+      convert_to: 'png',
+      notes: { userId: 'user-123', source: 'api' }
+    )
+
+    # 4. Poll
+    status = client.poll_status(
+      main_task_id: operation[:main_task_id],
+      interval: 2000
+    )
+
+    if status[:operation_status] == 'completed'
+      status[:files_data].each do |file|
+        puts "Download: #{file[:download_link]}"
+      end
+    end
+  rescue D3RubyClient::D3APIError => e
+    puts "API Error (#{e.status_code}): #{e.message}"
+  rescue D3RubyClient::D3ValidationError => e
+    puts "Validation Error: #{e.message}"
+  rescue StandardError => e
+    puts "Error: #{e.message}"
+  end
+end
+
+process_file
+```
