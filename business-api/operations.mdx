@@ -56,7 +56,7 @@ Use `main_task_id` for status polling and correlating webhook notifications.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -77,7 +77,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Using convenience method
@@ -107,7 +107,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Using convenience method
@@ -133,7 +133,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Using convenience method
@@ -159,7 +159,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Using convenience method
@@ -185,7 +185,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Using convenience method
@@ -216,7 +216,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Using convenience method
@@ -245,7 +245,7 @@ Before creating an operation, you can validate that a given extension and action
 
 <CodeGroup>
 ```bash cURL
-curl -X GET "https://api.d3.com/v1/biz/supported-operation?ext=pdf&action=convert&convert_to=png" \
+curl -X GET "https://api.dragdropdo.com/v1/biz/supported-operation?ext=pdf&action=convert&convert_to=png" \
   -H "X-D3-API-Key: your-api-key"
 ```
 
@@ -254,7 +254,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Check if convert to PNG is supported
@@ -273,7 +273,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Check if convert to PNG is supported
@@ -292,7 +292,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Check if convert to PNG is supported
@@ -311,7 +311,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Check if convert to PNG is supported
@@ -330,7 +330,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Check if convert to PNG is supported
@@ -354,7 +354,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Check if convert to PNG is supported
@@ -410,7 +410,7 @@ Common use cases:
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -427,7 +427,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Convert PDF to PNG
@@ -442,7 +442,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Convert PDF to PNG
@@ -457,7 +457,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Convert PDF to PNG
@@ -472,7 +472,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Convert PDF to PNG
@@ -487,7 +487,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Convert PDF to PNG
@@ -504,7 +504,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Convert PDF to PNG
@@ -522,7 +522,7 @@ operation = client.convert(List.of("file_key_1"), "pdf", null);
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -539,7 +539,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Compress with recommended level
@@ -551,7 +551,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Compress with recommended level
@@ -563,7 +563,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Compress with recommended level
@@ -575,7 +575,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Compress with recommended level
@@ -587,7 +587,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Compress with recommended level
@@ -601,7 +601,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Compress with recommended level
@@ -616,7 +616,7 @@ Merges multiple compatible files (typically PDFs) into a single output file.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -630,7 +630,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Merge multiple PDFs
@@ -642,7 +642,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Merge multiple PDFs
@@ -654,7 +654,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Merge multiple PDFs
@@ -666,7 +666,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Merge multiple PDFs
@@ -678,7 +678,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Merge multiple PDFs
@@ -692,7 +692,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Merge multiple PDFs
@@ -707,7 +707,7 @@ Creates a zip archive containing the given files.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -721,7 +721,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Create zip archive
@@ -733,7 +733,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Create zip archive
@@ -745,7 +745,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Create zip archive
@@ -757,7 +757,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Create zip archive
@@ -769,7 +769,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Create zip archive
@@ -783,7 +783,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Create zip archive
@@ -798,7 +798,7 @@ Generates shareable links for the specified files. Additional behavior may be co
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -815,7 +815,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Generate shareable links
@@ -829,7 +829,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Generate shareable links
@@ -841,7 +841,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Generate shareable links
@@ -853,7 +853,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Generate shareable links
@@ -865,7 +865,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Generate shareable links
@@ -882,7 +882,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Generate shareable links
@@ -900,7 +900,7 @@ Protects PDFs with a password.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -917,7 +917,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Lock PDF with password
@@ -929,7 +929,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Lock PDF with password
@@ -941,7 +941,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Lock PDF with password
@@ -953,7 +953,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Lock PDF with password
@@ -965,7 +965,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Lock PDF with password
@@ -979,7 +979,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Lock PDF with password
@@ -994,7 +994,7 @@ Removes password protection from PDFs.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1011,7 +1011,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Unlock PDF
@@ -1023,7 +1023,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Unlock PDF
@@ -1035,7 +1035,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Unlock PDF
@@ -1047,7 +1047,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Unlock PDF
@@ -1059,7 +1059,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Unlock PDF
@@ -1073,7 +1073,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Unlock PDF
@@ -1088,7 +1088,7 @@ Changes the password on password‑protected PDFs.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1106,7 +1106,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Reset PDF password
@@ -1122,7 +1122,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Reset PDF password
@@ -1138,7 +1138,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Reset PDF password
@@ -1150,7 +1150,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Reset PDF password
@@ -1166,7 +1166,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Reset PDF password
@@ -1185,7 +1185,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Reset PDF password

@@ -27,7 +27,7 @@ func main() {
     // Initialize the client
     client, err := d3.NewClient(d3.Config{
         APIKey:  "your-api-key-here",
-        BaseURL: "https://api.d3.com", // Optional, defaults to https://api.d3.com
+        BaseURL: "https://api.dragdropdo.com", // Optional, defaults to https://api.dragdropdo.com
         Timeout: 30 * time.Second,     // Optional, defaults to 30s
     })
     if err != nil {
@@ -57,7 +57,7 @@ NewClient(config Config) (*Client, error)
 **Config:**
 
 - `APIKey` (**required**) – your D3 API key.
-- `BaseURL` (optional) – API base URL, default: `https://api.d3.com`.
+- `BaseURL` (optional) – API base URL, default: `https://api.dragdropdo.com`.
 - `Timeout` (optional) – request timeout, default: `30 * time.Second`.
 - `Headers` (optional) – additional headers to send with every request.
 
@@ -214,7 +214,7 @@ import (
 func main() {
     client, err := d3.NewClient(d3.Config{
         APIKey:  os.Getenv("D3_API_KEY"),
-        BaseURL: "https://api.d3.com",
+        BaseURL: "https://api.dragdropdo.com",
     })
     if err != nil {
         panic(err)

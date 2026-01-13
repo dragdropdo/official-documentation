@@ -33,7 +33,7 @@ type ExternalStatusResponse = {
 
 <CodeGroup>
 ```bash cURL
-curl -X GET https://api.d3.com/v1/biz/status/task_abc123 \
+curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
   -H "X-D3-API-Key: your-api-key"
 ```
 
@@ -42,7 +42,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Get status
@@ -63,7 +63,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Get status
@@ -80,7 +80,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Get status
@@ -99,7 +99,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Get status
@@ -118,7 +118,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Get status
@@ -141,7 +141,7 @@ import com.d3.client.models.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Get status
@@ -199,7 +199,7 @@ if ("completed".equals(status.getOperationStatus())) {
 
 <CodeGroup>
 ```bash cURL
-curl -X GET https://api.d3.com/v1/biz/status/task_abc123/file_task_xyz \
+curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123/file_task_xyz \
   -H "X-D3-API-Key: your-api-key"
 ```
 
@@ -208,7 +208,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Get specific file task status
@@ -225,7 +225,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Get specific file task status
@@ -242,7 +242,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Get specific file task status
@@ -259,7 +259,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Get specific file task status
@@ -276,7 +276,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Get specific file task status
@@ -297,7 +297,7 @@ import com.d3.client.models.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Get specific file task status
@@ -327,7 +327,7 @@ When `fileTaskId` is present, the response narrows to the matching file task (if
 ```bash cURL
 # Poll in a loop (bash example)
 while true; do
-  response=$(curl -s -X GET https://api.d3.com/v1/biz/status/task_abc123 \
+  response=$(curl -s -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
     -H "X-D3-API-Key: your-api-key")
   
   status=$(echo $response | jq -r '.operation_status')
@@ -347,7 +347,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Poll until completion
@@ -373,7 +373,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Poll until completion
@@ -395,7 +395,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Poll until completion
@@ -421,7 +421,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Poll until completion
@@ -446,7 +446,7 @@ import "time"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Poll until completion
@@ -476,7 +476,7 @@ import com.d3.client.models.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Poll until completion

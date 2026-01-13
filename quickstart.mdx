@@ -20,7 +20,7 @@ API keys are managed via the authenticated developer routes under `/v1/developer
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/developer/generate-api-key \
+curl -X POST https://api.dragdropdo.com/v1/developer/generate-api-key \
   -H "Authorization: Bearer your-user-jwt" \
   -H "Content-Type: application/json" \
   -d '{
@@ -38,7 +38,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "d3_live_xxx", // From Developer API response
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 ```
 
@@ -49,7 +49,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="d3_live_xxx",  # From Developer API response
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 ```
 
@@ -60,7 +60,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'd3_live_xxx', // From Developer API response
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 ```
 
@@ -71,7 +71,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'd3_live_xxx', # From Developer API response
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 ```
 
@@ -82,7 +82,7 @@ import "github.com/d3/d3-go-client"
 
 client, err := d3.NewClient(d3.Config{
     APIKey:  "d3_live_xxx", // From Developer API response
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 })
 ```
 
@@ -94,7 +94,7 @@ import com.d3.client.D3ClientConfig;
 
 D3Client client = new D3Client(
     new D3ClientConfig("d3_live_xxx") // From Developer API response
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 ```
 
@@ -121,7 +121,7 @@ Uploads are done in two steps using presigned URLs.
 <CodeGroup>
 ```bash cURL
 # Step 1: Initiate upload
-curl -X POST https://api.d3.com/v1/biz/initiate-upload \
+curl -X POST https://api.dragdropdo.com/v1/biz/initiate-upload \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -139,7 +139,7 @@ curl -X PUT "https://minio/..." \
 
 # Step 3: Complete upload
 
-curl -X POST https://api.d3.com/v1/biz/complete-upload \
+curl -X POST https://api.dragdropdo.com/v1/biz/complete-upload \
  -H "X-D3-API-Key: your-api-key" \
  -H "Content-Type: application/json" \
  -d '{
@@ -153,7 +153,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // All steps handled automatically
@@ -172,7 +172,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # All steps handled automatically
@@ -191,7 +191,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // All steps handled automatically
@@ -210,7 +210,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # All steps handled automatically
@@ -229,7 +229,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 })
 
 // All steps handled automatically
@@ -250,7 +250,7 @@ import com.d3.client.models.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // All steps handled automatically
@@ -271,7 +271,7 @@ System.out.println("File key: " + uploadResult.getFileKey());
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/v1/biz/do \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -292,7 +292,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Create convert operation
@@ -309,7 +309,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Create convert operation
@@ -327,7 +327,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Create convert operation
@@ -345,7 +345,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Create convert operation
@@ -363,7 +363,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 })
 
 // Create convert operation
@@ -383,7 +383,7 @@ import java.util.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Create convert operation
@@ -411,13 +411,13 @@ System.out.println("Main task ID: " + operation.getMainTaskId());
 <CodeGroup>
 ```bash cURL
 # Single status check
-curl -X GET https://api.d3.com/v1/biz/status/task_abc123 \
+curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
   -H "X-D3-API-Key: your-api-key"
 
 # Poll in a loop (bash example)
 
 while true; do
-response=$(curl -s -X GET https://api.d3.com/v1/biz/status/task_abc123 \
+response=$(curl -s -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
  -H "X-D3-API-Key: your-api-key")
 
 status=$(echo $response | jq -r '.operation_status')
@@ -438,7 +438,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Poll until completion
@@ -462,7 +462,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Poll until completion
@@ -482,7 +482,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Poll until completion
@@ -506,7 +506,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Poll until completion
@@ -529,7 +529,7 @@ import "time"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 })
 
 // Poll until completion
@@ -557,7 +557,7 @@ import com.d3.client.models.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Poll until completion

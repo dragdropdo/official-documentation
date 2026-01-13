@@ -14,7 +14,7 @@ File uploads are handled via presigned URLs to MinIO. The API exposes two main s
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/initiate-upload \
+curl -X POST https://api.dragdropdo.com/v1/biz/initiate-upload \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -30,7 +30,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Initiate upload (handled automatically by uploadFile)
@@ -49,7 +49,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Initiate upload (handled automatically by upload_file)
@@ -68,7 +68,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Initiate upload (handled automatically by uploadFile)
@@ -87,7 +87,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Initiate upload (handled automatically by upload_file)
@@ -106,7 +106,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Initiate upload (handled automatically by UploadFile)
@@ -127,7 +127,7 @@ import com.d3.client.models.*;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Initiate upload (handled automatically by uploadFile)
@@ -275,7 +275,7 @@ Once all parts have been uploaded, finalize the upload so that the file can be u
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.d3.com/v1/biz/complete-upload \
+curl -X POST https://api.dragdropdo.com/v1/biz/complete-upload \
   -H "X-D3-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -288,7 +288,7 @@ import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
   apiKey: "your-api-key",
-  baseURL: "https://api.d3.com",
+  baseURL: "https://api.dragdropdo.com",
 });
 
 // Note: uploadFile() automatically completes the upload
@@ -301,7 +301,7 @@ from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
     api_key="your-api-key",
-    base_url="https://api.d3.com"
+    base_url="https://api.dragdropdo.com"
 )
 
 # Note: upload_file() automatically completes the upload
@@ -313,7 +313,7 @@ use D3\D3Client;
 
 $client = new D3Client([
     'api_key' => 'your-api-key',
-    'base_url' => 'https://api.d3.com',
+    'base_url' => 'https://api.dragdropdo.com',
 ]);
 
 // Note: uploadFile() automatically completes the upload
@@ -325,7 +325,7 @@ require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
   api_key: 'your-api-key',
-  base_url: 'https://api.d3.com'
+  base_url: 'https://api.dragdropdo.com'
 )
 
 # Note: upload_file() automatically completes the upload
@@ -337,7 +337,7 @@ import "github.com/d3/d3-go-client"
 
 client, _ := d3.NewClient(d3.Config{
     APIKey:  "your-api-key",
-    BaseURL: "https://api.d3.com",
+    BaseURL: "https://api.dragdropdo.com",
 });
 
 // Note: UploadFile() automatically completes the upload
@@ -350,7 +350,7 @@ import com.d3.client.D3ClientConfig;
 
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key")
-        .setBaseUrl("https://api.d3.com")
+        .setBaseUrl("https://api.dragdropdo.com")
 );
 
 // Note: uploadFile() automatically completes the upload

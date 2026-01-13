@@ -23,7 +23,7 @@ import { D3Client } from "d3-node-client";
 // Initialize the client
 const client = new D3Client({
   apiKey: "your-api-key-here",
-  baseURL: "https://api.d3.com", // Optional, defaults to https://api.d3.com
+  baseURL: "https://api.dragdropdo.com", // Optional, defaults to https://api.dragdropdo.com
   timeout: 30000                  // Optional, defaults to 30000ms
 });
 
@@ -46,7 +46,7 @@ new D3Client(config: D3ClientConfig)
 **Config:**
 
 - `apiKey` (**required**) – your D3 API key.
-- `baseURL` (optional) – API base URL, default: `https://api.d3.com`.
+- `baseURL` (optional) – API base URL, default: `https://api.dragdropdo.com`.
 - `timeout` (optional) – request timeout in ms, default: `30000`.
 - `headers` (optional) – additional headers to send with every request.
 
@@ -186,7 +186,7 @@ import { D3Client, D3APIError, D3ValidationError } from "d3-node-client";
 async function processFile() {
   const client = new D3Client({
     apiKey: process.env.D3_API_KEY!,
-    baseURL: "https://api.d3.com"
+    baseURL: "https://api.dragdropdo.com"
   });
 
   try {

@@ -35,7 +35,7 @@ import com.d3.client.models.*;
 // Initialize the client
 D3Client client = new D3Client(
     new D3ClientConfig("your-api-key-here")
-        .setBaseUrl("https://api.d3.com")  // Optional, defaults to https://api.d3.com
+        .setBaseUrl("https://api.dragdropdo.com")  // Optional, defaults to https://api.dragdropdo.com
         .setTimeout(30000)                 // Optional, defaults to 30000ms
 );
 
@@ -59,7 +59,7 @@ new D3Client(D3ClientConfig config)
 **Config:**
 
 - `apiKey` (**required**) – your D3 API key.
-- `baseUrl` (optional) – API base URL, default: `https://api.d3.com`.
+- `baseUrl` (optional) – API base URL, default: `https://api.dragdropdo.com`.
 - `timeout` (optional) – request timeout in ms, default: `30000`.
 - `headers` (optional) – additional headers to send with every request.
 
@@ -208,7 +208,7 @@ public class Example {
     public static void main(String[] args) {
         D3Client client = new D3Client(
             new D3ClientConfig(System.getenv("D3_API_KEY"))
-                .setBaseUrl("https://api.d3.com")
+                .setBaseUrl("https://api.dragdropdo.com")
         );
 
         try {
