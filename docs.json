@@ -1,0 +1,50 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "D3 Business API",
+  "colors": {
+    "primary": "#2563eb",
+    "light": "#eff6ff",
+    "dark": "#020617"
+  },
+  "favicon": "/favicon.ico",
+  "logo": {
+    "light": "/logo.svg",
+    "dark": "/logo.svg"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Get started",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": ["index", "introduction", "quickstart"]
+          },
+          {
+            "group": "Business API",
+            "pages": [
+              "business-api/overview",
+              "business-api/authentication",
+              "business-api/upload",
+              "business-api/operations",
+              "business-api/status",
+              "business-api/webhooks"
+            ]
+          },
+          {
+            "group": "SDKs",
+            "pages": [
+              "sdks/node",
+              "sdks/python",
+              "sdks/php",
+              "sdks/ruby",
+              "sdks/go",
+              "sdks/java"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
