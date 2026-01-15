@@ -3,8 +3,6 @@ title: "Authentication"
 description: "How API key authentication works in the D3 Business API."
 ---
 
-# Authentication
-
 ## API key authentication
 
 Business API routes under `/v1/biz` are protected with an API‑key–based middleware (`APIKeyAuth`) that verifies requests using a hashed key and encrypted digest stored in the `developer_app_details` (or equivalent) table.
