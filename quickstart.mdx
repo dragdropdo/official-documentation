@@ -14,105 +14,76 @@ This quickstart shows the end‑to‑end flow using the D3 Business API:
 
 ## 1. Get an API key
 
-API keys are managed via the authenticated developer routes under `/v1/developer`.
+API keys are managed through the D3 dashboard. To generate an API key:
 
-### Generate a new API key
+1. **Sign in** to your account at [dragdropdo.com/auth/signin](https://dragdropdo.com/auth/signin)
+2. Navigate to your **Account** section
+3. Go to the **Generate API Key** section
+4. Create a new API key with a descriptive name
+5. Copy and securely store your API key – it is only shown once
+
+Once you have your API key, you can use it to initialize the client:
 
 <CodeGroup>
-```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/developer/generate-api-key \
-  -H "Authorization: Bearer your-user-jwt" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "My SaaS backend",
-    "webhook_url": "https://example.com/webhooks/d3",
-    "webhook_secret": "",
-    "region": "us-east-1"
-  }'
-```
-
 ```ts NODE
-// Note: API key generation is done via Developer API
-// Once you have the API key, use it to initialize the client:
 import { D3Client } from "d3-node-client";
 
 const client = new D3Client({
-  apiKey: "d3_live_xxx", // From Developer API response
-  baseURL: "https://api.dragdropdo.com",
+apiKey: "d3_live_xxx", // Your API key from the dashboard
+baseURL: "https://api.dragdropdo.com",
 });
-```
+
+````
 
 ```python PYTHON
-# Note: API key generation is done via Developer API
-# Once you have the API key, use it to initialize the client:
 from d3_client import D3Client, D3ClientConfig
 
 client = D3Client(
-    api_key="d3_live_xxx",  # From Developer API response
+    api_key="d3_live_xxx",  # Your API key from the dashboard
     base_url="https://api.dragdropdo.com"
 )
-```
+````
 
 ```php PHP
-// Note: API key generation is done via Developer API
-// Once you have the API key, use it to initialize the client:
 use D3\D3Client;
 
 $client = new D3Client([
-    'api_key' => 'd3_live_xxx', // From Developer API response
+    'api_key' => 'd3_live_xxx', // Your API key from the dashboard
     'base_url' => 'https://api.dragdropdo.com',
 ]);
 ```
 
 ```ruby RUBY
-# Note: API key generation is done via Developer API
-# Once you have the API key, use it to initialize the client:
 require 'd3_ruby_client'
 
 client = D3RubyClient::Client.new(
-  api_key: 'd3_live_xxx', # From Developer API response
+  api_key: 'd3_live_xxx', # Your API key from the dashboard
   base_url: 'https://api.dragdropdo.com'
 )
 ```
 
 ```go GO
-// Note: API key generation is done via Developer API
-// Once you have the API key, use it to initialize the client:
 import "github.com/d3/d3-go-client"
 
 client, err := d3.NewClient(d3.Config{
-    APIKey:  "d3_live_xxx", // From Developer API response
+    APIKey:  "d3_live_xxx", // Your API key from the dashboard
     BaseURL: "https://api.dragdropdo.com",
 })
 ```
 
 ```java JAVA
-// Note: API key generation is done via Developer API
-// Once you have the API key, use it to initialize the client:
 import com.d3.client.D3Client;
 import com.d3.client.D3ClientConfig;
 
 D3Client client = new D3Client(
-    new D3ClientConfig("d3_live_xxx") // From Developer API response
+    new D3ClientConfig("d3_live_xxx") // Your API key from the dashboard
         .setBaseUrl("https://api.dragdropdo.com")
 );
 ```
 
 </CodeGroup>
 
-**Response (simplified):**
-
-```json
-{
-  "api_key": "d3_live_xxx",
-  "rate_limit": "1000/m",
-  "webhook_url": "https://example.com/webhooks/d3",
-  "webhook_secret": "whsec_xxx",
-  "created_at": "2025-01-01T00:00:00Z"
-}
-```
-
-Store the `api_key` securely – it is only returned once. Authentication for `/v1/biz` endpoints uses this raw key.
+Store your `api_key` securely – it is only shown once in the dashboard. Authentication for `/v1/biz` endpoints uses this raw key.
 
 ## 2. Upload a file
 

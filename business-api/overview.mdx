@@ -12,11 +12,11 @@ The Business API exposes a small, composable surface under the `/v1/biz` prefix:
 - **Supported operations** – discover which operations and parameters are valid for a given file type.
 - **Status** – check operation and per‑file status.
 
-Developer‑facing management endpoints live under `/v1/developer`:
+API keys and webhooks are managed through the D3 dashboard:
 
-- **API keys** – create, list, expire, and delete API keys.
-- **Webhooks** – register, list, and delete webhooks; inspect webhook audit logs.
-- **Usage** – fetch aggregated Business API usage metrics.
+- **API keys** – generate and manage API keys from your account dashboard
+- **Webhooks** – register and manage webhooks from your account dashboard
+- **Usage** – view your API usage and quotas in the dashboard
 
 ## Base URL
 
@@ -37,20 +37,6 @@ GET    /v1/biz/status/:mainTaskId
 GET    /v1/biz/status/:mainTaskId/:fileTaskId
 ```
 
-Developer management endpoints:
-
-```text
-POST   /v1/developer/generate-api-key
-GET    /v1/developer/api-key
-PATCH  /v1/developer/api-key/expire
-DELETE /v1/developer/api-key/:id
-GET    /v1/developer/usage
-POST   /v1/developer/webhooks
-GET    /v1/developer/webhooks
-GET    /v1/developer/webhooks/audit
-DELETE /v1/developer/webhook/:webhookId
-```
+To manage API keys and webhooks, sign in to your account at [dragdropdo.com/auth/signin](https://dragdropdo.com/auth/signin) and navigate to the Account section.
 
 For a detailed view of request/response schemas, see the **Upload**, **Operations**, **Status**, and **Webhooks** pages.
-
-

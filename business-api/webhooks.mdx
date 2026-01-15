@@ -21,16 +21,15 @@ All deliveries are logged in the `WEBHOOK_AUDIT_LOGS` table, including status, a
 
 ## Registering webhooks
 
-Webhooks can be registered or managed in two ways:
+Webhooks are registered and managed through the D3 dashboard:
 
-- Via `POST /v1/developer/generate-api-key` by passing a `webhook_url` (and optional `webhook_secret`).
-- Via dedicated developer webhook endpoints:
-  - `POST /v1/developer/webhooks`
-  - `GET /v1/developer/webhooks`
-  - `DELETE /v1/developer/webhook/:webhookId`
-  - `GET /v1/developer/webhooks/audit`
+1. **Sign in** to your account at [dragdropdo.com/auth/signin](https://dragdropdo.com/auth/signin)
+2. Navigate to your **Account** section
+3. Go to the **Register Webhook** section
+4. Enter your webhook URL and optional webhook secret
+5. Save your webhook configuration
 
-> All `/v1/developer/*` routes require authenticated user JWTs (not API keys).
+You can also configure webhooks when generating an API key in the dashboard by providing a webhook URL during the API key creation process.
 
 ## Events
 
@@ -117,7 +116,7 @@ The webhook audit and retry flow (simplified from the design docs):
   - A retry succeeds.
   - The max retry count is reached.
 
-You can inspect delivery health and failures via `GET /v1/developer/webhooks/audit`.
+You can inspect delivery health and failures through the webhook management section in your account dashboard.
 
 ## Security
 
@@ -128,5 +127,3 @@ Recommended best practices:
 - Always validate signatures using the shared `webhook_secret`.
 - Use HTTPS for webhook endpoints.
 - Treat webhook bodies as **event notifications** and fetch sensitive data via the Business API where needed.
-
-

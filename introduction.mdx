@@ -14,7 +14,7 @@ This documentation goes beyond just API specifications. It provides:
 ### 📚 **Complete API Reference**
 
 - Detailed endpoint documentation with request/response schemas
-- Authentication and rate limiting guidelines
+- Authentication guidelines
 - Error handling and status codes
 - Webhook configuration and event payloads
 
@@ -32,9 +32,9 @@ This documentation goes beyond just API specifications. It provides:
 
 ### 🔧 **Developer Tools**
 
-- **API Key Management** – Create, manage, and monitor your API keys
-- **Webhook Configuration** – Set up async notifications for operation events
-- **Usage Analytics** – Track your API usage and quotas
+- **API Key Management** – Create, manage, and monitor your API keys through the dashboard
+- **Webhook Configuration** – Set up async notifications for operation events via the dashboard
+- **Usage Analytics** – Track your API usage and quotas in the dashboard
 
 ### 📖 **Architecture & Concepts**
 
@@ -49,8 +49,8 @@ The **D3 Business API** is a high‑throughput, file‑centric API for developer
 
 At a high level the system consists of:
 
-- **API Routes** – Entry point for all external requests, applying IP filtering, authentication and rate limiting.
-- **Middleware** – API key authentication and token‑bucket rate limiting.
+- **API Routes** – Entry point for all external requests, applying IP filtering and authentication.
+- **Middleware** – API key authentication.
 - **External API Handler** – Upload, create operation, fetch status, and other business actions.
 - **Service Layer** – Uploads to MinIO, validates file types and ownership, and interfaces with the task system.
 - **Repository Layer** – Persists data in Postgres tables such as `developer_app_details`, `external_files`, `external_operations`, and `webhook_logs`.
@@ -62,9 +62,9 @@ At a high level the system consists of:
 - Upload any supported file type to regional MinIO storage.
 - Create **operations** such as convert, compress, merge, zip, share, lock/unlock/reset password.
 - Get operation **status** via polling or **webhooks**.
-- Manage **API keys** and **webhooks** via developer endpoints.
+- Manage **API keys** and **webhooks** through the D3 dashboard.
 
-All of these capabilities are exposed via the `/v1/biz` Business API surface and managed via `/v1/developer` endpoints on the same host.
+All of these capabilities are exposed via the `/v1/biz` Business API surface. API keys and webhooks are managed through the dashboard at [dragdropdo.com/auth/signin](https://dragdropdo.com/auth/signin) in your Account section.
 
 ## Next Steps
 
