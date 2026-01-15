@@ -1,13 +1,7 @@
 ---
 title: "Node.js SDK"
-description: "Official Node.js client for the D3 Business API."
+description: "The official `d3-node-client` package provides a high‑level, type‑safe interface to the D3 Business API."
 ---
-
-# Node.js SDK
-
-The official `d3-node-client` package provides a high‑level, type‑safe interface to the D3 Business API.
-
-> This page summarizes and reorganizes the content from the SDK README for Mintlify.
 
 ## Installation
 
@@ -24,14 +18,14 @@ import { D3Client } from "d3-node-client";
 const client = new D3Client({
   apiKey: "your-api-key-here",
   baseURL: "https://api.dragdropdo.com", // Optional, defaults to https://api.dragdropdo.com
-  timeout: 30000                  // Optional, defaults to 30000ms
+  timeout: 30000, // Optional, defaults to 30000ms
 });
 
 // Upload a file
 const uploadResult = await client.uploadFile({
   file: "/path/to/document.pdf",
   fileName: "document.pdf",
-  mimeType: "application/pdf"
+  mimeType: "application/pdf",
 });
 
 console.log("File key:", uploadResult.fileKey);
@@ -73,7 +67,7 @@ const result = await client.uploadFile({
   mimeType: "application/pdf",
   onProgress: (progress) => {
     console.log(`Upload: ${progress.percentage}%`);
-  }
+  },
 });
 ```
 
@@ -102,7 +96,7 @@ console.log(actions.availableActions);
 const supported = await client.checkSupportedOperation({
   ext: "pdf",
   action: "convert",
-  parameters: { convert_to: "png" }
+  parameters: { convert_to: "png" },
 });
 console.log("Supported:", supported.supported);
 ```
@@ -128,14 +122,14 @@ await client.createOperation({
   action: "convert",
   fileKeys: [uploadResult.fileKey],
   parameters: { convert_to: "png" },
-  notes: { userId: "user-123" }
+  notes: { userId: "user-123" },
 });
 
 // Compress
 await client.createOperation({
   action: "compress",
   fileKeys: [uploadResult.fileKey],
-  parameters: { compression_value: "recommended" }
+  parameters: { compression_value: "recommended" },
 });
 ```
 
@@ -174,7 +168,7 @@ const finalStatus = await client.pollStatus({
   timeout: 300000,
   onUpdate: (status) => {
     console.log("Status:", status.operationStatus);
-  }
+  },
 });
 ```
 
@@ -186,34 +180,35 @@ import { D3Client, D3APIError, D3ValidationError } from "d3-node-client";
 async function processFile() {
   const client = new D3Client({
     apiKey: process.env.D3_API_KEY!,
-    baseURL: "https://api.dragdropdo.com"
+    baseURL: "https://api.dragdropdo.com",
   });
 
   try {
     // 1. Upload
     const uploadResult = await client.uploadFile({
       file: "./document.pdf",
-      fileName: "document.pdf"
+      fileName: "document.pdf",
     });
 
     // 2. Check support
     const supported = await client.checkSupportedOperation({
       ext: "pdf",
       action: "convert",
-      parameters: { convert_to: "png" }
+      parameters: { convert_to: "png" },
     });
-    if (!supported.supported) throw new Error("Convert to PNG is not supported");
+    if (!supported.supported)
+      throw new Error("Convert to PNG is not supported");
 
     // 3. Create operation
     const operation = await client.convert([uploadResult.fileKey], "png", {
       userId: "user-123",
-      source: "api"
+      source: "api",
     });
 
     // 4. Poll
     const status = await client.pollStatus({
       mainTaskId: operation.mainTaskId,
-      interval: 2000
+      interval: 2000,
     });
 
     if (status.operationStatus === "completed") {
@@ -232,5 +227,3 @@ async function processFile() {
   }
 }
 ```
-
-
