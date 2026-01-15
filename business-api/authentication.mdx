@@ -9,12 +9,12 @@ description: "How API key authentication works in the D3 Business API."
 
 Business API routes under `/v1/biz` are protected with an API‑key–based middleware (`APIKeyAuth`) that verifies requests using a hashed key and encrypted digest stored in the `developer_app_details` (or equivalent) table.
 
-Send your key using the `X-D3-API-Key` header:
+Send your key using the `Authorization` header with Bearer token:
 
 <CodeGroup>
 ```bash cURL
 curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
-  -H "X-D3-API-Key: d3_live_xxx"
+  -H "Authorization: Bearer d3_live_xxx"
 ```
 
 ```ts NODE

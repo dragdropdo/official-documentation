@@ -15,7 +15,7 @@ File uploads are handled via presigned URLs to MinIO. The API exposes two main s
 <CodeGroup>
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/v1/biz/initiate-upload \
-  -H "X-D3-API-Key: your-api-key" \
+  -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
     "file_name": "document.pdf",
@@ -276,10 +276,15 @@ Once all parts have been uploaded, finalize the upload so that the file can be u
 <CodeGroup>
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/v1/biz/complete-upload \
-  -H "X-D3-API-Key: your-api-key" \
+  -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "file_key": "file_key_123"
+    "file_key": "file_key_123",
+    "upload_id": "upload-id",
+    "object_name": "external/...",
+    "parts": [
+      { "etag": "etag-part-1", "part_number": 1 }
+    ]
   }'
 ```
 
@@ -358,5 +363,10 @@ D3Client client = new D3Client(
 ```
 
 </CodeGroup>
+
+- `file_key` (**required**) – stable key returned by initiate upload.
+- `upload_id` (**required**) – upload ID returned by initiate upload.
+- `object_name` (**required**) – object name returned by initiate upload.
+- `parts` (**required**) – list of uploaded parts with `etag` and `part_number`.
 
 On success, the server persists metadata in the repository layer and the file becomes available for `/v1/biz/do` operations.

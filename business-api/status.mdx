@@ -34,7 +34,7 @@ type ExternalStatusResponse = {
 <CodeGroup>
 ```bash cURL
 curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
-  -H "X-D3-API-Key: your-api-key"
+  -H "Authorization: Bearer your-api-key"
 ```
 
 ```ts NODE
@@ -200,7 +200,7 @@ if ("completed".equals(status.getOperationStatus())) {
 <CodeGroup>
 ```bash cURL
 curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123/file_task_xyz \
-  -H "X-D3-API-Key: your-api-key"
+  -H "Authorization: Bearer your-api-key"
 ```
 
 ```ts NODE
@@ -328,7 +328,7 @@ When `fileTaskId` is present, the response narrows to the matching file task (if
 # Poll in a loop (bash example)
 while true; do
   response=$(curl -s -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
-    -H "X-D3-API-Key: your-api-key")
+    -H "Authorization: Bearer your-api-key")
   
   status=$(echo $response | jq -r '.operation_status')
   echo "Status: $status"

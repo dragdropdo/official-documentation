@@ -93,7 +93,7 @@ Uploads are done in two steps using presigned URLs.
 ```bash cURL
 # Step 1: Initiate upload
 curl -X POST https://api.dragdropdo.com/v1/biz/initiate-upload \
-  -H "X-D3-API-Key: your-api-key" \
+  -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
     "file_name": "document.pdf",
@@ -111,7 +111,7 @@ curl -X PUT "https://minio/..." \
 # Step 3: Complete upload
 
 curl -X POST https://api.dragdropdo.com/v1/biz/complete-upload \
- -H "X-D3-API-Key: your-api-key" \
+ -H "Authorization: Bearer your-api-key" \
  -H "Content-Type: application/json" \
  -d '{
 "file_key": "file_key_123"
@@ -243,7 +243,7 @@ System.out.println("File key: " + uploadResult.getFileKey());
 <CodeGroup>
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/v1/biz/do \
-  -H "X-D3-API-Key: your-api-key" \
+  -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
     "action": "convert",
@@ -383,13 +383,13 @@ System.out.println("Main task ID: " + operation.getMainTaskId());
 ```bash cURL
 # Single status check
 curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
-  -H "X-D3-API-Key: your-api-key"
+  -H "Authorization: Bearer your-api-key"
 
 # Poll in a loop (bash example)
 
 while true; do
 response=$(curl -s -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
- -H "X-D3-API-Key: your-api-key")
+ -H "Authorization: Bearer your-api-key")
 
 status=$(echo $response | jq -r '.operation_status')
 echo "Status: $status"
