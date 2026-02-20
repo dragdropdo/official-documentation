@@ -24,9 +24,9 @@ curl -X POST https://api.dragdropdo.com/v1/biz/initiate-upload \
 ```
 
 ```ts NODE
-import { D3Client } from "d3-node-client";
+import { Dragdropdo } from "dragdropdo-sdk";
 
-const client = new D3Client({
+const client = new Dragdropdo({
   apiKey: "your-api-key",
   baseURL: "https://api.dragdropdo.com",
 });
@@ -43,9 +43,9 @@ console.log("Presigned URLs:", uploadResult.presignedUrls);
 ```
 
 ```python PYTHON
-from d3_client import D3Client, D3ClientConfig
+from dragdropdo_sdk import Dragdropdo, D3ClientConfig
 
-client = D3Client(
+client = Dragdropdo(
     api_key="your-api-key",
     base_url="https://api.dragdropdo.com"
 )
@@ -62,9 +62,9 @@ print("Presigned URLs:", upload_result.presigned_urls)
 ```
 
 ```php PHP
-use D3\D3Client;
+use DragdropdoSdk\Dragdropdo;
 
-$client = new D3Client([
+$client = new Dragdropdo([
     'api_key' => 'your-api-key',
     'base_url' => 'https://api.dragdropdo.com',
 ]);
@@ -81,9 +81,9 @@ echo "Presigned URLs: " . implode(', ', $uploadResult['presigned_urls']) . "\n";
 ```
 
 ```ruby RUBY
-require 'd3_ruby_client'
+require 'dragdropdo_sdk'
 
-client = D3RubyClient::Client.new(
+client = DragdropdoSdk::Dragdropdo.new(
   api_key: 'your-api-key',
   base_url: 'https://api.dragdropdo.com'
 )
@@ -100,9 +100,9 @@ puts "Presigned URLs: #{upload_result[:presigned_urls]}"
 ```
 
 ```go GO
-import "github.com/d3/d3-go-client"
+import "github.com/d3/dragdropdo-sdk-go"
 
-client, _ := d3.NewClient(d3.Config{
+client, _ := d3.NewDragdropdo(d3.Config{
     APIKey:  "your-api-key",
     BaseURL: "https://api.dragdropdo.com",
 });
@@ -119,12 +119,12 @@ fmt.Printf("Presigned URLs: %v\n", uploadResult.PresignedURLs)
 ```
 
 ```java JAVA
-import com.d3.client.D3Client;
-import com.d3.client.D3ClientConfig;
-import com.d3.client.models.*;
+import com.dragdropdo.sdk.Dragdropdo;
+import com.dragdropdo.sdk.DragdropdoConfig;
+import com.dragdropdo.sdk.models.*;
 
-D3Client client = new D3Client(
-    new D3ClientConfig("your-api-key")
+Dragdropdo client = new Dragdropdo(
+    new DragdropdoConfig("your-api-key")
         .setBaseUrl("https://api.dragdropdo.com")
 );
 
@@ -287,9 +287,9 @@ curl -X POST https://api.dragdropdo.com/v1/biz/complete-upload \
 ```
 
 ```ts NODE
-import { D3Client } from "d3-node-client";
+import { Dragdropdo } from "dragdropdo-sdk";
 
-const client = new D3Client({
+const client = new Dragdropdo({
   apiKey: "your-api-key",
   baseURL: "https://api.dragdropdo.com",
 });
@@ -300,9 +300,9 @@ const client = new D3Client({
 ```
 
 ```python PYTHON
-from d3_client import D3Client, D3ClientConfig
+from dragdropdo_sdk import Dragdropdo, D3ClientConfig
 
-client = D3Client(
+client = Dragdropdo(
     api_key="your-api-key",
     base_url="https://api.dragdropdo.com"
 )
@@ -312,9 +312,9 @@ client = D3Client(
 ```
 
 ```php PHP
-use D3\D3Client;
+use DragdropdoSdk\Dragdropdo;
 
-$client = new D3Client([
+$client = new Dragdropdo([
     'api_key' => 'your-api-key',
     'base_url' => 'https://api.dragdropdo.com',
 ]);
@@ -324,9 +324,9 @@ $client = new D3Client([
 ```
 
 ```ruby RUBY
-require 'd3_ruby_client'
+require 'dragdropdo_sdk'
 
-client = D3RubyClient::Client.new(
+client = DragdropdoSdk::Dragdropdo.new(
   api_key: 'your-api-key',
   base_url: 'https://api.dragdropdo.com'
 )
@@ -336,9 +336,9 @@ client = D3RubyClient::Client.new(
 ```
 
 ```go GO
-import "github.com/d3/d3-go-client"
+import "github.com/d3/dragdropdo-sdk-go"
 
-client, _ := d3.NewClient(d3.Config{
+client, _ := d3.NewDragdropdo(d3.Config{
     APIKey:  "your-api-key",
     BaseURL: "https://api.dragdropdo.com",
 });
@@ -348,11 +348,11 @@ client, _ := d3.NewClient(d3.Config{
 ```
 
 ```java JAVA
-import com.d3.client.D3Client;
-import com.d3.client.D3ClientConfig;
+import com.dragdropdo.sdk.Dragdropdo;
+import com.dragdropdo.sdk.DragdropdoConfig;
 
-D3Client client = new D3Client(
-    new D3ClientConfig("your-api-key")
+Dragdropdo client = new Dragdropdo(
+    new DragdropdoConfig("your-api-key")
         .setBaseUrl("https://api.dragdropdo.com")
 );
 

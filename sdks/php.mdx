@@ -1,13 +1,13 @@
 ---
 title: "PHP SDK"
-description: "The official `d3/d3-php-client` package provides a high‑level interface to the D3 Business API.
+description: "The official `dragdropdo/sdk` package provides a high‑level interface to the D3 Business API.
 "
 ---
 
 ## Installation
 
 ```bash
-composer require d3/d3-php-client
+composer require dragdropdo/sdk
 ```
 
 ## Quick start
@@ -16,10 +16,10 @@ composer require d3/d3-php-client
 <?php
 require 'vendor/autoload.php';
 
-use D3\D3Client;
+use DragdropdoSdk\Dragdropdo;
 
 // Initialize the client
-$client = new D3Client([
+$client = new Dragdropdo([
     'api_key' => 'your-api-key-here',
     'base_url' => 'https://api.dragdropdo.com', // Optional, defaults to https://api.dragdropdo.com
     'timeout' => 30000 // Optional, defaults to 30000ms
@@ -38,7 +38,7 @@ echo "File key: " . $uploadResult['file_key'] . "\n";
 ## Initialization
 
 ```php
-new D3Client(array $config)
+new Dragdropdo(array $config)
 ```
 
 **Config:**
@@ -180,12 +180,12 @@ $finalStatus = $client->pollStatus([
 <?php
 require 'vendor/autoload.php';
 
-use D3\D3Client;
-use D3\Exceptions\D3APIError;
-use D3\Exceptions\D3ValidationError;
+use DragdropdoSdk\Dragdropdo;
+use DragdropdoSdk\Exceptions\D3APIError;
+use DragdropdoSdk\Exceptions\D3ValidationError;
 
 function processFile() {
-    $client = new D3Client([
+    $client = new Dragdropdo([
         'api_key' => getenv('D3_API_KEY'),
         'base_url' => 'https://api.dragdropdo.com'
     ]);

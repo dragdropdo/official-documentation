@@ -1,6 +1,6 @@
 ---
 title: "Java SDK"
-description: "The official `d3-java-client` package provides a high‑level interface to the D3 Business API."
+description: "The official `dragdropdo-sdk` package provides a high‑level interface to the D3 Business API."
 ---
 
 ## Installation
@@ -10,7 +10,7 @@ Add the following dependency to your `pom.xml`:
 ```xml
 <dependency>
     <groupId>com.d3</groupId>
-    <artifactId>d3-java-client</artifactId>
+    <artifactId>dragdropdo-sdk</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -18,19 +18,19 @@ Add the following dependency to your `pom.xml`:
 Or for Gradle:
 
 ```gradle
-implementation 'com.d3:d3-java-client:1.0.0'
+implementation 'com.d3:dragdropdo-sdk:1.0.0'
 ```
 
 ## Quick start
 
 ```java
-import com.d3.client.D3Client;
-import com.d3.client.D3ClientConfig;
-import com.d3.client.models.*;
+import com.dragdropdo.sdk.Dragdropdo;
+import com.dragdropdo.sdk.DragdropdoConfig;
+import com.dragdropdo.sdk.models.*;
 
 // Initialize the client
-D3Client client = new D3Client(
-    new D3ClientConfig("your-api-key-here")
+Dragdropdo client = new Dragdropdo(
+    new DragdropdoConfig("your-api-key-here")
         .setBaseUrl("https://api.dragdropdo.com")  // Optional, defaults to https://api.dragdropdo.com
         .setTimeout(30000)                 // Optional, defaults to 30000ms
 );
@@ -49,7 +49,7 @@ System.out.println("File key: " + uploadResult.getFileKey());
 ## Initialization
 
 ```java
-new D3Client(D3ClientConfig config)
+new Dragdropdo(DragdropdoConfig config)
 ```
 
 **Config:**
@@ -194,16 +194,16 @@ StatusResponse finalStatus = client.pollStatus(
 ## Complete workflow example
 
 ```java
-import com.d3.client.D3Client;
-import com.d3.client.D3ClientConfig;
-import com.d3.client.models.*;
-import com.d3.client.exceptions.*;
+import com.dragdropdo.sdk.Dragdropdo;
+import com.dragdropdo.sdk.DragdropdoConfig;
+import com.dragdropdo.sdk.models.*;
+import com.dragdropdo.sdk.exceptions.*;
 import java.util.*;
 
 public class Example {
     public static void main(String[] args) {
-        D3Client client = new D3Client(
-            new D3ClientConfig(System.getenv("D3_API_KEY"))
+        Dragdropdo client = new Dragdropdo(
+            new DragdropdoConfig(System.getenv("D3_API_KEY"))
                 .setBaseUrl("https://api.dragdropdo.com")
         );
 

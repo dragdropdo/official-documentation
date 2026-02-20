@@ -1,12 +1,12 @@
 ---
 title: "Go SDK"
-description: "The official `d3-go-client` package provides a high‑level interface to the D3 Business API."
+description: "The official `dragdropdo-sdk-go` package provides a high‑level interface to the D3 Business API."
 ---
 
 ## Installation
 
 ```bash
-go get github.com/d3/d3-go-client
+go get github.com/d3/dragdropdo-sdk-go
 ```
 
 ## Quick start
@@ -16,12 +16,12 @@ package main
 
 import (
     "fmt"
-    "github.com/d3/d3-go-client"
+    "github.com/d3/dragdropdo-sdk-go"
 )
 
 func main() {
     // Initialize the client
-    client, err := d3.NewClient(d3.Config{
+    client, err := d3.NewDragdropdo(d3.Config{
         APIKey:  "your-api-key-here",
         BaseURL: "https://api.dragdropdo.com", // Optional, defaults to https://api.dragdropdo.com
         Timeout: 30 * time.Second,     // Optional, defaults to 30s
@@ -47,7 +47,7 @@ func main() {
 ## Initialization
 
 ```go
-NewClient(config Config) (*Client, error)
+NewDragdropdo(config Config) (*Dragdropdo, error)
 ```
 
 **Config:**
@@ -204,11 +204,11 @@ import (
     "fmt"
     "os"
     "time"
-    "github.com/d3/d3-go-client"
+    "github.com/d3/dragdropdo-sdk-go"
 )
 
 func main() {
-    client, err := d3.NewClient(d3.Config{
+    client, err := d3.NewDragdropdo(d3.Config{
         APIKey:  os.Getenv("D3_API_KEY"),
         BaseURL: "https://api.dragdropdo.com",
     })

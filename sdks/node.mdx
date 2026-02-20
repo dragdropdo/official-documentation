@@ -1,21 +1,21 @@
 ---
 title: "Node.js SDK"
-description: "The official `d3-node-client` package provides a high‑level, type‑safe interface to the D3 Business API."
+description: "The official `dragdropdo-sdk` package provides a high‑level, type‑safe interface to the D3 Business API."
 ---
 
 ## Installation
 
 ```bash
-npm install d3-node-client
+npm install dragdropdo-sdk
 ```
 
 ## Quick start
 
 ```ts
-import { D3Client } from "d3-node-client";
+import { Dragdropdo } from "dragdropdo-sdk";
 
 // Initialize the client
-const client = new D3Client({
+const client = new Dragdropdo({
   apiKey: "your-api-key-here",
   baseURL: "https://api.dragdropdo.com", // Optional, defaults to https://api.dragdropdo.com
   timeout: 30000, // Optional, defaults to 30000ms
@@ -34,7 +34,7 @@ console.log("File key:", uploadResult.fileKey);
 ## Initialization
 
 ```ts
-new D3Client(config: D3ClientConfig)
+new Dragdropdo(config: D3ClientConfig)
 ```
 
 **Config:**
@@ -175,10 +175,10 @@ const finalStatus = await client.pollStatus({
 ## Complete workflow example
 
 ```ts
-import { D3Client, D3APIError, D3ValidationError } from "d3-node-client";
+import { Dragdropdo, D3APIError, D3ValidationError } from "dragdropdo-sdk";
 
 async function processFile() {
-  const client = new D3Client({
+  const client = new Dragdropdo({
     apiKey: process.env.D3_API_KEY!,
     baseURL: "https://api.dragdropdo.com",
   });

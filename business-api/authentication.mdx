@@ -16,9 +16,9 @@ curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
 ```
 
 ```ts NODE
-import { D3Client } from "d3-node-client";
+import { Dragdropdo } from "dragdropdo-sdk";
 
-const client = new D3Client({
+const client = new Dragdropdo({
   apiKey: "d3_live_xxx",
   baseURL: "https://api.dragdropdo.com",
 });
@@ -27,9 +27,9 @@ const client = new D3Client({
 ```
 
 ```python PYTHON
-from d3_client import D3Client, D3ClientConfig
+from dragdropdo_sdk import Dragdropdo, D3ClientConfig
 
-client = D3Client(
+client = Dragdropdo(
     api_key="d3_live_xxx",
     base_url="https://api.dragdropdo.com"
 )
@@ -38,9 +38,9 @@ client = D3Client(
 ```
 
 ```php PHP
-use D3\D3Client;
+use DragdropdoSdk\Dragdropdo;
 
-$client = new D3Client([
+$client = new Dragdropdo([
     'api_key' => 'd3_live_xxx',
     'base_url' => 'https://api.dragdropdo.com',
 ]);
@@ -49,9 +49,9 @@ $client = new D3Client([
 ```
 
 ```ruby RUBY
-require 'd3_ruby_client'
+require 'dragdropdo_sdk'
 
-client = D3RubyClient::Client.new(
+client = DragdropdoSdk::Dragdropdo.new(
   api_key: 'd3_live_xxx',
   base_url: 'https://api.dragdropdo.com'
 )
@@ -60,9 +60,9 @@ client = D3RubyClient::Client.new(
 ```
 
 ```go GO
-import "github.com/d3/d3-go-client"
+import "github.com/d3/dragdropdo-sdk-go"
 
-client, _ := d3.NewClient(d3.Config{
+client, _ := d3.NewDragdropdo(d3.Config{
     APIKey:  "d3_live_xxx",
     BaseURL: "https://api.dragdropdo.com",
 });
@@ -71,11 +71,11 @@ client, _ := d3.NewClient(d3.Config{
 ```
 
 ```java JAVA
-import com.d3.client.D3Client;
-import com.d3.client.D3ClientConfig;
+import com.dragdropdo.sdk.Dragdropdo;
+import com.dragdropdo.sdk.DragdropdoConfig;
 
-D3Client client = new D3Client(
-    new D3ClientConfig("d3_live_xxx")
+Dragdropdo client = new Dragdropdo(
+    new DragdropdoConfig("d3_live_xxx")
         .setBaseUrl("https://api.dragdropdo.com")
 );
 
@@ -107,9 +107,9 @@ Once you have your API key, you can use it to initialize the client:
 
 <CodeGroup>
 ```ts NODE
-import { D3Client } from "d3-node-client";
+import { Dragdropdo } from "dragdropdo-sdk";
 
-const client = new D3Client({
+const client = new Dragdropdo({
 apiKey: "d3_live_xxx", // Your API key from the dashboard
 baseURL: "https://api.dragdropdo.com",
 });
@@ -117,47 +117,47 @@ baseURL: "https://api.dragdropdo.com",
 ````
 
 ```python PYTHON
-from d3_client import D3Client, D3ClientConfig
+from dragdropdo_sdk import Dragdropdo, D3ClientConfig
 
-client = D3Client(
+client = Dragdropdo(
     api_key="d3_live_xxx",  # Your API key from the dashboard
     base_url="https://api.dragdropdo.com"
 )
 ````
 
 ```php PHP
-use D3\D3Client;
+use DragdropdoSdk\Dragdropdo;
 
-$client = new D3Client([
+$client = new Dragdropdo([
     'api_key' => 'd3_live_xxx', // Your API key from the dashboard
     'base_url' => 'https://api.dragdropdo.com',
 ]);
 ```
 
 ```ruby RUBY
-require 'd3_ruby_client'
+require 'dragdropdo_sdk'
 
-client = D3RubyClient::Client.new(
+client = DragdropdoSdk::Dragdropdo.new(
   api_key: 'd3_live_xxx', # Your API key from the dashboard
   base_url: 'https://api.dragdropdo.com'
 )
 ```
 
 ```go GO
-import "github.com/d3/d3-go-client"
+import "github.com/d3/dragdropdo-sdk-go"
 
-client, _ := d3.NewClient(d3.Config{
+client, _ := d3.NewDragdropdo(d3.Config{
     APIKey:  "d3_live_xxx", // Your API key from the dashboard
     BaseURL: "https://api.dragdropdo.com",
 });
 ```
 
 ```java JAVA
-import com.d3.client.D3Client;
-import com.d3.client.D3ClientConfig;
+import com.dragdropdo.sdk.Dragdropdo;
+import com.dragdropdo.sdk.DragdropdoConfig;
 
-D3Client client = new D3Client(
-    new D3ClientConfig("d3_live_xxx") // Your API key from the dashboard
+Dragdropdo client = new Dragdropdo(
+    new DragdropdoConfig("d3_live_xxx") // Your API key from the dashboard
         .setBaseUrl("https://api.dragdropdo.com")
 );
 ```

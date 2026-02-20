@@ -1,6 +1,6 @@
 ---
 title: "Ruby SDK"
-description: "The official `d3-ruby-client` gem provides a high‑level interface to the D3 Business API.
+description: "The official `dragdropdo-sdk` gem provides a high‑level interface to the D3 Business API.
 "
 ---
 
@@ -9,7 +9,7 @@ description: "The official `d3-ruby-client` gem provides a high‑level interfac
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'd3-ruby-client'
+gem 'dragdropdo-sdk'
 ```
 
 And then execute:
@@ -21,16 +21,16 @@ bundle install
 Or install it yourself as:
 
 ```bash
-gem install d3-ruby-client
+gem install dragdropdo-sdk
 ```
 
 ## Quick start
 
 ```ruby
-require 'd3_ruby_client'
+require 'dragdropdo_sdk'
 
 # Initialize the client
-client = D3RubyClient::Client.new(
+client = DragdropdoSdk::Dragdropdo.new(
   api_key: 'your-api-key-here',
   base_url: 'https://api.dragdropdo.com', # Optional, defaults to https://api.dragdropdo.com
   timeout: 30000 # Optional, defaults to 30000ms
@@ -49,7 +49,7 @@ puts "File key: #{upload_result[:file_key]}"
 ## Initialization
 
 ```ruby
-D3RubyClient::Client.new(api_key:, base_url: nil, timeout: 30000, headers: {})
+DragdropdoSdk::Dragdropdo.new(api_key:, base_url: nil, timeout: 30000, headers: {})
 ```
 
 **Parameters:**
@@ -184,10 +184,10 @@ final_status = client.poll_status(
 ## Complete workflow example
 
 ```ruby
-require 'd3_ruby_client'
+require 'dragdropdo_sdk'
 
 def process_file
-  client = D3RubyClient::Client.new(
+  client = DragdropdoSdk::Dragdropdo.new(
     api_key: ENV['D3_API_KEY'],
     base_url: 'https://api.dragdropdo.com'
   )
@@ -227,9 +227,9 @@ def process_file
         puts "Download: #{file[:download_link]}"
       end
     end
-  rescue D3RubyClient::D3APIError => e
+  rescue DragdropdoSdk::D3APIError => e
     puts "API Error (#{e.status_code}): #{e.message}"
-  rescue D3RubyClient::D3ValidationError => e
+  rescue DragdropdoSdk::D3ValidationError => e
     puts "Validation Error: #{e.message}"
   rescue StandardError => e
     puts "Error: #{e.message}"

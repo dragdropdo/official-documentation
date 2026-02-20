@@ -36,9 +36,9 @@ curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
 ```
 
 ```ts NODE
-import { D3Client } from "d3-node-client";
+import { Dragdropdo } from "dragdropdo-sdk";
 
-const client = new D3Client({
+const client = new Dragdropdo({
   apiKey: "your-api-key",
   baseURL: "https://api.dragdropdo.com",
 });
@@ -57,9 +57,9 @@ if (status.operationStatus === "completed") {
 ```
 
 ```python PYTHON
-from d3_client import D3Client, D3ClientConfig
+from dragdropdo_sdk import Dragdropdo, D3ClientConfig
 
-client = D3Client(
+client = Dragdropdo(
     api_key="your-api-key",
     base_url="https://api.dragdropdo.com"
 )
@@ -74,9 +74,9 @@ if status.operation_status == "completed":
 ```
 
 ```php PHP
-use D3\D3Client;
+use DragdropdoSdk\Dragdropdo;
 
-$client = new D3Client([
+$client = new Dragdropdo([
     'api_key' => 'your-api-key',
     'base_url' => 'https://api.dragdropdo.com',
 ]);
@@ -93,9 +93,9 @@ if ($status['operation_status'] === 'completed') {
 ```
 
 ```ruby RUBY
-require 'd3_ruby_client'
+require 'dragdropdo_sdk'
 
-client = D3RubyClient::Client.new(
+client = DragdropdoSdk::Dragdropdo.new(
   api_key: 'your-api-key',
   base_url: 'https://api.dragdropdo.com'
 )
@@ -112,9 +112,9 @@ end
 ```
 
 ```go GO
-import "github.com/d3/d3-go-client"
+import "github.com/d3/dragdropdo-sdk-go"
 
-client, _ := d3.NewClient(d3.Config{
+client, _ := d3.NewDragdropdo(d3.Config{
     APIKey:  "your-api-key",
     BaseURL: "https://api.dragdropdo.com",
 });
@@ -133,12 +133,12 @@ if status.OperationStatus == "completed" {
 ```
 
 ```java JAVA
-import com.d3.client.D3Client;
-import com.d3.client.D3ClientConfig;
-import com.d3.client.models.*;
+import com.dragdropdo.sdk.Dragdropdo;
+import com.dragdropdo.sdk.DragdropdoConfig;
+import com.dragdropdo.sdk.models.*;
 
-D3Client client = new D3Client(
-    new D3ClientConfig("your-api-key")
+Dragdropdo client = new Dragdropdo(
+    new DragdropdoConfig("your-api-key")
         .setBaseUrl("https://api.dragdropdo.com")
 );
 
@@ -202,9 +202,9 @@ curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123/file_task_xyz \
 ```
 
 ```ts NODE
-import { D3Client } from "d3-node-client";
+import { Dragdropdo } from "dragdropdo-sdk";
 
-const client = new D3Client({
+const client = new Dragdropdo({
   apiKey: "your-api-key",
   baseURL: "https://api.dragdropdo.com",
 });
@@ -219,9 +219,9 @@ console.log("File status:", status.filesData?.[0]?.status);
 ```
 
 ```python PYTHON
-from d3_client import D3Client, D3ClientConfig
+from dragdropdo_sdk import Dragdropdo, D3ClientConfig
 
-client = D3Client(
+client = Dragdropdo(
     api_key="your-api-key",
     base_url="https://api.dragdropdo.com"
 )
@@ -236,9 +236,9 @@ print("File status:", status.files_data[0].status if status.files_data else None
 ```
 
 ```php PHP
-use D3\D3Client;
+use DragdropdoSdk\Dragdropdo;
 
-$client = new D3Client([
+$client = new Dragdropdo([
     'api_key' => 'your-api-key',
     'base_url' => 'https://api.dragdropdo.com',
 ]);
@@ -253,9 +253,9 @@ echo "File status: " . ($status['files_data'][0]['status'] ?? 'N/A') . "\n";
 ```
 
 ```ruby RUBY
-require 'd3_ruby_client'
+require 'dragdropdo_sdk'
 
-client = D3RubyClient::Client.new(
+client = DragdropdoSdk::Dragdropdo.new(
   api_key: 'your-api-key',
   base_url: 'https://api.dragdropdo.com'
 )
@@ -270,9 +270,9 @@ puts "File status: #{status[:files_data]&.first&.dig(:status)}"
 ```
 
 ```go GO
-import "github.com/d3/d3-go-client"
+import "github.com/d3/dragdropdo-sdk-go"
 
-client, _ := d3.NewClient(d3.Config{
+client, _ := d3.NewDragdropdo(d3.Config{
     APIKey:  "your-api-key",
     BaseURL: "https://api.dragdropdo.com",
 });
@@ -289,12 +289,12 @@ if len(status.FilesData) > 0 {
 ```
 
 ```java JAVA
-import com.d3.client.D3Client;
-import com.d3.client.D3ClientConfig;
-import com.d3.client.models.*;
+import com.dragdropdo.sdk.Dragdropdo;
+import com.dragdropdo.sdk.DragdropdoConfig;
+import com.dragdropdo.sdk.models.*;
 
-D3Client client = new D3Client(
-    new D3ClientConfig("your-api-key")
+Dragdropdo client = new Dragdropdo(
+    new DragdropdoConfig("your-api-key")
         .setBaseUrl("https://api.dragdropdo.com")
 );
 
@@ -341,9 +341,9 @@ done
 ```
 
 ```ts NODE
-import { D3Client } from "d3-node-client";
+import { Dragdropdo } from "dragdropdo-sdk";
 
-const client = new D3Client({
+const client = new Dragdropdo({
   apiKey: "your-api-key",
   baseURL: "https://api.dragdropdo.com",
 });
@@ -367,9 +367,9 @@ if (status.operationStatus === "completed") {
 ```
 
 ```python PYTHON
-from d3_client import D3Client, D3ClientConfig
+from dragdropdo_sdk import Dragdropdo, D3ClientConfig
 
-client = D3Client(
+client = Dragdropdo(
     api_key="your-api-key",
     base_url="https://api.dragdropdo.com"
 )
@@ -389,9 +389,9 @@ if status.operation_status == "completed":
 ```
 
 ```php PHP
-use D3\D3Client;
+use DragdropdoSdk\Dragdropdo;
 
-$client = new D3Client([
+$client = new Dragdropdo([
     'api_key' => 'your-api-key',
     'base_url' => 'https://api.dragdropdo.com',
 ]);
@@ -415,9 +415,9 @@ if ($status['operation_status'] === 'completed') {
 ```
 
 ```ruby RUBY
-require 'd3_ruby_client'
+require 'dragdropdo_sdk'
 
-client = D3RubyClient::Client.new(
+client = DragdropdoSdk::Dragdropdo.new(
   api_key: 'your-api-key',
   base_url: 'https://api.dragdropdo.com'
 )
@@ -439,10 +439,10 @@ end
 ```
 
 ```go GO
-import "github.com/d3/d3-go-client"
+import "github.com/d3/dragdropdo-sdk-go"
 import "time"
 
-client, _ := d3.NewClient(d3.Config{
+client, _ := d3.NewDragdropdo(d3.Config{
     APIKey:  "your-api-key",
     BaseURL: "https://api.dragdropdo.com",
 });
@@ -468,12 +468,12 @@ if status.OperationStatus == "completed" {
 ```
 
 ```java JAVA
-import com.d3.client.D3Client;
-import com.d3.client.D3ClientConfig;
-import com.d3.client.models.*;
+import com.dragdropdo.sdk.Dragdropdo;
+import com.dragdropdo.sdk.DragdropdoConfig;
+import com.dragdropdo.sdk.models.*;
 
-D3Client client = new D3Client(
-    new D3ClientConfig("your-api-key")
+Dragdropdo client = new Dragdropdo(
+    new DragdropdoConfig("your-api-key")
         .setBaseUrl("https://api.dragdropdo.com")
 );
 
