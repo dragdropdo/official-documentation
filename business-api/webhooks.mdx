@@ -119,7 +119,7 @@ app.post(
   "/webhooks/d3",
   express.raw({ type: "application/json" }),
   (req, res) => {
-    const signature = req.headers["x-webhook-signature"] as string;
+    const signature = req.headers["X-Webhook-Signature"] as string;
     const body = req.body;
 
     if (!verifySignature(body, signature, process.env.D3_WEBHOOK_SECRET!)) {
@@ -263,7 +263,7 @@ if __name__ == "__main__":
 
 $webhookSecret = getenv('D3_WEBHOOK_SECRET');
 $body = file_get_contents('php://input');
-$signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE'] ?? '';
+$signature = $_SERVER['X-Webhook-Signature'] ?? '';
 
 if (!verifySignature($body, $signature, $webhookSecret)) {
     http_response_code(401);
@@ -336,7 +336,7 @@ WEBHOOK_SECRET = ENV.fetch('D3_WEBHOOK_SECRET')
 
 post '/webhooks/d3' do
   body = request.body.read
-  signature = request.env['HTTP_X_WEBHOOK_SIGNATURE'] || ''
+  signature = request.env['X-Webhook-Signature'] || ''
 
   unless verify_signature(body, signature, WEBHOOK_SECRET)
     halt 401, { 'Content-Type' => 'application/json' },
@@ -607,7 +607,7 @@ When a `webhook_secret` is configured, every webhook request includes an `X-Webh
 ```ts NODE
 import crypto from "crypto";
 
-function verifyD3Signature(
+function verifyWebhookSignature(
   rawBody: Buffer,
   signatureHeader: string,
   secret: string
@@ -628,7 +628,7 @@ function verifyD3Signature(
 import hmac
 import hashlib
 
-def verify_d3_signature(
+def verify_webhook_signature(
     raw_body: bytes,
     signature_header: str,
     secret: str,
@@ -640,7 +640,7 @@ def verify_d3_signature(
 ```
 
 ```php PHP
-function verifyD3Signature(
+function verifyWebhookSignature(
     string $rawBody,
     string $signatureHeader,
     string $secret
@@ -653,7 +653,7 @@ function verifyD3Signature(
 ```ruby RUBY
 require 'openssl'
 
-def verify_d3_signature(raw_body, signature_header, secret)
+def verify_webhook_signature(raw_body, signature_header, secret)
   expected = OpenSSL::HMAC.hexdigest('SHA256', secret, raw_body)
   Rack::Utils.secure_compare(expected, signature_header)
 end
@@ -666,7 +666,7 @@ import (
 	"encoding/hex"
 )
 
-func verifyD3Signature(rawBody []byte, signatureHeader, secret string) bool {
+func verifyWebhookSignature(rawBody []byte, signatureHeader, secret string) bool {
 	mac := hmac.New(sha256.New, []byte(secret))
 	mac.Write(rawBody)
 	expected := hex.EncodeToString(mac.Sum(nil))
@@ -680,7 +680,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-public static boolean verifyD3Signature(
+public static boolean verifyWebhookSignature(
     byte[] rawBody,
     String signatureHeader,
     String secret
