@@ -3,7 +3,7 @@ title: "Overview"
 description: "High-level overview of the D3 Business API surface."
 ---
 
-The Business API exposes a small, composable surface under the `/v1/biz` prefix:
+The Business API exposes a small, composable surface under the `/api/v1` prefix:
 
 - **Upload** – create presigned upload URLs and register uploaded files.
 - **Operations** – create operations on uploaded files (convert, compress, merge, zip, share, lock/unlock, reset password).
@@ -27,12 +27,12 @@ https://api.dragdropdo.com
 Business API endpoints:
 
 ```text
-POST   /v1/biz/initiate-upload
-POST   /v1/biz/complete-upload
-POST   /v1/biz/do
-GET    /v1/biz/supported-operation
-GET    /v1/biz/status/:mainTaskId
-GET    /v1/biz/status/:mainTaskId/:fileTaskId
+POST   /api/v1/initiate-upload
+POST   /api/v1/complete-upload
+POST   /api/v1/do
+GET    /api/v1/supported-operation
+GET    /api/v1/status/:mainTaskId
+GET    /api/v1/status/:mainTaskId/:fileTaskId
 ```
 
 To manage API keys and webhooks, sign in to your account at [dragdropdo.com/auth/signin](https://dragdropdo.com/auth/signin) and navigate to the Account section.

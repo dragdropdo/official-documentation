@@ -79,7 +79,7 @@ Dragdropdo client = new Dragdropdo(
 
 </CodeGroup>
 
-Store your `api_key` securely – it is only shown once in the dashboard. Authentication for `/v1/biz` endpoints uses this raw key.
+Store your `api_key` securely – it is only shown once in the dashboard. Authentication for `/api/v1` endpoints uses this raw key.
 
 ## 2. Upload a file
 
@@ -88,7 +88,7 @@ Uploads are done in two steps using presigned URLs.
 <CodeGroup>
 ```bash cURL
 # Step 1: Initiate upload
-curl -X POST https://api.dragdropdo.com/v1/biz/initiate-upload \
+curl -X POST https://api.dragdropdo.com/api/v1/initiate-upload \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -106,7 +106,7 @@ curl -X PUT "https://minio/..." \
 
 # Step 3: Complete upload
 
-curl -X POST https://api.dragdropdo.com/v1/biz/complete-upload \
+curl -X POST https://api.dragdropdo.com/api/v1/complete-upload \
  -H "Authorization: Bearer your-api-key" \
  -H "Content-Type: application/json" \
  -d '{
@@ -238,7 +238,7 @@ System.out.println("File key: " + uploadResult.getFileKey());
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -378,13 +378,13 @@ System.out.println("Main task ID: " + operation.getMainTaskId());
 <CodeGroup>
 ```bash cURL
 # Single status check
-curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
+curl -X GET https://api.dragdropdo.com/api/v1/status/task_abc123 \
   -H "Authorization: Bearer your-api-key"
 
 # Poll in a loop (bash example)
 
 while true; do
-response=$(curl -s -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
+response=$(curl -s -X GET https://api.dragdropdo.com/api/v1/status/task_abc123 \
  -H "Authorization: Bearer your-api-key")
 
 status=$(echo $response | jq -r '.operation_status')

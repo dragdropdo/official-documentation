@@ -6,7 +6,7 @@ description: "Create file operations such as convert, compress, merge, zip, and 
 Operations are created via:
 
 ```http
-POST /v1/biz/do
+POST /api/v1/do
 Authorization: Bearer <your-api-key>
 Content-Type: application/json
 ```
@@ -54,7 +54,7 @@ Use `main_task_id` for status polling and correlating webhook notifications.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -243,7 +243,7 @@ Before creating an operation, you can validate that a given extension and action
 
 <CodeGroup>
 ```bash cURL
-curl -X GET "https://api.dragdropdo.com/v1/biz/supported-operation?ext=pdf&action=convert&convert_to=png" \
+curl -X GET "https://api.dragdropdo.com/api/v1/supported-operation?ext=pdf&action=convert&convert_to=png" \
   -H "Authorization: Bearer your-api-key"
 ```
 
@@ -408,7 +408,7 @@ Common use cases:
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -520,7 +520,7 @@ operation = client.convert(List.of("file_key_1"), "pdf", null);
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -614,7 +614,7 @@ Merges multiple compatible files (typically PDFs) into a single output file.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -705,7 +705,7 @@ Creates a zip archive containing the given files.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -796,7 +796,7 @@ Generates shareable links for the specified files. Additional behavior may be co
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -898,7 +898,7 @@ Protects PDFs with a password.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -992,7 +992,7 @@ Removes password protection from PDFs.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1086,7 +1086,7 @@ Changes the password on password‑protected PDFs.
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/do \
+curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{

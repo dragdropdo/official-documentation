@@ -5,14 +5,14 @@ description: "Upload files to D3 using presigned URLs."
 
 File uploads are handled via presigned URLs to MinIO. The API exposes two main steps:
 
-- `POST /v1/biz/initiate-upload` – create an upload session and receive presigned URLs.
-- `POST /v1/biz/complete-upload` – finalize the upload and register the file for operations.
+- `POST /api/v1/initiate-upload` – create an upload session and receive presigned URLs.
+- `POST /api/v1/complete-upload` – finalize the upload and register the file for operations.
 
 ## Initiate upload
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/initiate-upload \
+curl -X POST https://api.dragdropdo.com/api/v1/initiate-upload \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -273,7 +273,7 @@ Once all parts have been uploaded, finalize the upload so that the file can be u
 
 <CodeGroup>
 ```bash cURL
-curl -X POST https://api.dragdropdo.com/v1/biz/complete-upload \
+curl -X POST https://api.dragdropdo.com/api/v1/complete-upload \
   -H "Authorization: Bearer your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -367,4 +367,4 @@ Dragdropdo client = new Dragdropdo(
 - `object_name` (**required**) – object name returned by initiate upload.
 - `parts` (**required**) – list of uploaded parts with `etag` and `part_number`.
 
-On success, the server persists metadata in the repository layer and the file becomes available for `/v1/biz/do` operations.
+On success, the server persists metadata in the repository layer and the file becomes available for `/api/v1/do` operations.

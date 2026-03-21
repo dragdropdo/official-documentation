@@ -3,10 +3,10 @@ title: "Status"
 description: "Check operation and per-file status via the Business API."
 ---
 
-The status endpoints let you track the lifecycle of operations created via `/v1/biz/do`.
+The status endpoints let you track the lifecycle of operations created via `/api/v1/do`.
 
-- `GET /v1/biz/status/:mainTaskId`
-- `GET /v1/biz/status/:mainTaskId/:fileTaskId`
+- `GET /api/v1/status/:mainTaskId`
+- `GET /api/v1/status/:mainTaskId/:fileTaskId`
 
 These routes are backed by the `ExternalStatusURI`, `ExternalStatusFileData`, and `ExternalStatusResponse` types.
 
@@ -31,7 +31,7 @@ type ExternalStatusResponse = {
 
 <CodeGroup>
 ```bash cURL
-curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
+curl -X GET https://api.dragdropdo.com/api/v1/status/task_abc123 \
   -H "Authorization: Bearer your-api-key"
 ```
 
@@ -197,7 +197,7 @@ if ("completed".equals(status.getOperationStatus())) {
 
 <CodeGroup>
 ```bash cURL
-curl -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123/file_task_xyz \
+curl -X GET https://api.dragdropdo.com/api/v1/status/task_abc123/file_task_xyz \
   -H "Authorization: Bearer your-api-key"
 ```
 
@@ -325,7 +325,7 @@ When `fileTaskId` is present, the response narrows to the matching file task (if
 ```bash cURL
 # Poll in a loop (bash example)
 while true; do
-  response=$(curl -s -X GET https://api.dragdropdo.com/v1/biz/status/task_abc123 \
+  response=$(curl -s -X GET https://api.dragdropdo.com/api/v1/status/task_abc123 \
     -H "Authorization: Bearer your-api-key")
   
   status=$(echo $response | jq -r '.operation_status')

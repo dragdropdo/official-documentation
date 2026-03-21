@@ -97,6 +97,612 @@ From the Business API design, the main events are:
 }
 ```
 
+## Receiving webhooks
+
+Your webhook endpoint must accept **POST** requests with a JSON body. D3 sends the event payload along with an `X-D3-Signature` header (when a `webhook_secret` is configured). Your server should:
+
+1. Read the raw request body.
+2. Verify the HMAC-SHA256 signature.
+3. Parse the JSON payload and handle the event.
+4. Return a **2xx** status code to acknowledge receipt.
+
+### Webhook handler example
+
+<CodeGroup>
+```ts NODE
+import express from "express";
+import crypto from "crypto";
+
+const app = express();
+
+app.post(
+  "/webhooks/d3",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    const signature = req.headers["x-d3-signature"] as string;
+    const body = req.body;
+
+    if (!verifySignature(body, signature, process.env.D3_WEBHOOK_SECRET!)) {
+      return res.status(401).send("Invalid signature");
+    }
+
+    const event = JSON.parse(body.toString());
+
+    switch (event.type) {
+      case "operation.completed":
+        handleOperationCompleted(event.payload);
+        break;
+      case "operation.failed":
+        handleOperationFailed(event.payload);
+        break;
+      case "fileTask.completed":
+        handleFileTaskCompleted(event.data);
+        break;
+      case "fileTask.failed":
+        handleFileTaskFailed(event.data);
+        break;
+      default:
+        console.log("Unhandled event type:", event.type);
+    }
+
+    res.status(200).json({ received: true });
+  }
+);
+
+function verifySignature(
+  body: Buffer,
+  signature: string,
+  secret: string
+): boolean {
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(body)
+    .digest("hex");
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  );
+}
+
+function handleOperationCompleted(payload: any) {
+  const { main_task } = payload;
+  console.log(`Operation ${main_task.id} completed`);
+  console.log(`  ${main_task.count.success}/${main_task.count.total} files succeeded`);
+  for (const file of main_task.file_data) {
+    if (file.status === "completed") {
+      console.log(`  Download: ${file.download_link}`);
+    }
+  }
+}
+
+function handleOperationFailed(payload: any) {
+  console.error(`Operation ${payload.main_task.id} failed`);
+}
+
+function handleFileTaskCompleted(data: any) {
+  console.log(`File ${data.file_key} completed`);
+}
+
+function handleFileTaskFailed(data: any) {
+  console.error(`File ${data.file_key} failed: ${data.error}`);
+}
+
+app.listen(3000, () => console.log("Webhook server listening on :3000"));
+```
+
+```python PYTHON
+import hmac
+import hashlib
+import json
+import os
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+WEBHOOK_SECRET = os.environ["D3_WEBHOOK_SECRET"]
+
+@app.route("/webhooks/d3", methods=["POST"])
+def handle_webhook():
+    signature = request.headers.get("X-D3-Signature", "")
+    body = request.get_data()
+
+    if not verify_signature(body, signature, WEBHOOK_SECRET):
+        return jsonify({"error": "Invalid signature"}), 401
+
+    event = json.loads(body)
+
+    match event["type"]:
+        case "operation.completed":
+            handle_operation_completed(event["payload"])
+        case "operation.failed":
+            handle_operation_failed(event["payload"])
+        case "fileTask.completed":
+            handle_file_task_completed(event["data"])
+        case "fileTask.failed":
+            handle_file_task_failed(event["data"])
+        case _:
+            print(f"Unhandled event type: {event['type']}")
+
+    return jsonify({"received": True}), 200
+
+
+def verify_signature(body: bytes, signature: str, secret: str) -> bool:
+    expected = hmac.new(
+        secret.encode(), body, hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(signature, expected)
+
+
+def handle_operation_completed(payload):
+    task = payload["main_task"]
+    print(f"Operation {task['id']} completed")
+    print(f"  {task['count']['success']}/{task['count']['total']} files succeeded")
+    for f in task["file_data"]:
+        if f["status"] == "completed":
+            print(f"  Download: {f['download_link']}")
+
+
+def handle_operation_failed(payload):
+    print(f"Operation {payload['main_task']['id']} failed")
+
+
+def handle_file_task_completed(data):
+    print(f"File {data['file_key']} completed")
+
+
+def handle_file_task_failed(data):
+    print(f"File {data['file_key']} failed: {data['error']}")
+
+
+if __name__ == "__main__":
+    app.run(port=3000)
+```
+
+```php PHP
+<?php
+
+$webhookSecret = getenv('D3_WEBHOOK_SECRET');
+$body = file_get_contents('php://input');
+$signature = $_SERVER['HTTP_X_D3_SIGNATURE'] ?? '';
+
+if (!verifySignature($body, $signature, $webhookSecret)) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Invalid signature']);
+    exit;
+}
+
+$event = json_decode($body, true);
+
+switch ($event['type']) {
+    case 'operation.completed':
+        handleOperationCompleted($event['payload']);
+        break;
+    case 'operation.failed':
+        handleOperationFailed($event['payload']);
+        break;
+    case 'fileTask.completed':
+        handleFileTaskCompleted($event['data']);
+        break;
+    case 'fileTask.failed':
+        handleFileTaskFailed($event['data']);
+        break;
+    default:
+        error_log("Unhandled event type: {$event['type']}");
+}
+
+http_response_code(200);
+echo json_encode(['received' => true]);
+
+function verifySignature(string $body, string $signature, string $secret): bool
+{
+    $expected = hash_hmac('sha256', $body, $secret);
+    return hash_equals($expected, $signature);
+}
+
+function handleOperationCompleted(array $payload): void
+{
+    $task = $payload['main_task'];
+    echo "Operation {$task['id']} completed\n";
+    echo "  {$task['count']['success']}/{$task['count']['total']} files succeeded\n";
+    foreach ($task['file_data'] as $file) {
+        if ($file['status'] === 'completed') {
+            echo "  Download: {$file['download_link']}\n";
+        }
+    }
+}
+
+function handleOperationFailed(array $payload): void
+{
+    echo "Operation {$payload['main_task']['id']} failed\n";
+}
+
+function handleFileTaskCompleted(array $data): void
+{
+    echo "File {$data['file_key']} completed\n";
+}
+
+function handleFileTaskFailed(array $data): void
+{
+    echo "File {$data['file_key']} failed: {$data['error']}\n";
+}
+```
+
+```ruby RUBY
+require 'sinatra'
+require 'json'
+require 'openssl'
+
+WEBHOOK_SECRET = ENV.fetch('D3_WEBHOOK_SECRET')
+
+post '/webhooks/d3' do
+  body = request.body.read
+  signature = request.env['HTTP_X_D3_SIGNATURE'] || ''
+
+  unless verify_signature(body, signature, WEBHOOK_SECRET)
+    halt 401, { 'Content-Type' => 'application/json' },
+         JSON.generate(error: 'Invalid signature')
+  end
+
+  event = JSON.parse(body)
+
+  case event['type']
+  when 'operation.completed'
+    handle_operation_completed(event['payload'])
+  when 'operation.failed'
+    handle_operation_failed(event['payload'])
+  when 'fileTask.completed'
+    handle_file_task_completed(event['data'])
+  when 'fileTask.failed'
+    handle_file_task_failed(event['data'])
+  else
+    puts "Unhandled event type: #{event['type']}"
+  end
+
+  content_type :json
+  status 200
+  JSON.generate(received: true)
+end
+
+def verify_signature(body, signature, secret)
+  expected = OpenSSL::HMAC.hexdigest('SHA256', secret, body)
+  Rack::Utils.secure_compare(expected, signature)
+end
+
+def handle_operation_completed(payload)
+  task = payload['main_task']
+  puts "Operation #{task['id']} completed"
+  puts "  #{task['count']['success']}/#{task['count']['total']} files succeeded"
+  task['file_data'].each do |file|
+    puts "  Download: #{file['download_link']}" if file['status'] == 'completed'
+  end
+end
+
+def handle_operation_failed(payload)
+  puts "Operation #{payload['main_task']['id']} failed"
+end
+
+def handle_file_task_completed(data)
+  puts "File #{data['file_key']} completed"
+end
+
+def handle_file_task_failed(data)
+  puts "File #{data['file_key']} failed: #{data['error']}"
+end
+```
+
+```go GO
+package main
+
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+)
+
+var webhookSecret = os.Getenv("D3_WEBHOOK_SECRET")
+
+func main() {
+	http.HandleFunc("/webhooks/d3", handleWebhook)
+	log.Println("Webhook server listening on :3000")
+	log.Fatal(http.ListenAndServe(":3000", nil))
+}
+
+func handleWebhook(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	signature := r.Header.Get("X-D3-Signature")
+	if !verifySignature(body, signature, webhookSecret) {
+		http.Error(w, "Invalid signature", http.StatusUnauthorized)
+		return
+	}
+
+	var event map[string]interface{}
+	if err := json.Unmarshal(body, &event); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	eventType, _ := event["type"].(string)
+	switch eventType {
+	case "operation.completed":
+		handleOperationCompleted(event["payload"])
+	case "operation.failed":
+		handleOperationFailed(event["payload"])
+	case "fileTask.completed":
+		handleFileTaskCompleted(event["data"])
+	case "fileTask.failed":
+		handleFileTaskFailed(event["data"])
+	default:
+		log.Printf("Unhandled event type: %s\n", eventType)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]bool{"received": true})
+}
+
+func verifySignature(body []byte, signature, secret string) bool {
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write(body)
+	expected := hex.EncodeToString(mac.Sum(nil))
+	return hmac.Equal([]byte(expected), []byte(signature))
+}
+
+func handleOperationCompleted(payload interface{}) {
+	p, _ := payload.(map[string]interface{})
+	task, _ := p["main_task"].(map[string]interface{})
+	fmt.Printf("Operation %s completed\n", task["id"])
+}
+
+func handleOperationFailed(payload interface{}) {
+	p, _ := payload.(map[string]interface{})
+	task, _ := p["main_task"].(map[string]interface{})
+	fmt.Printf("Operation %s failed\n", task["id"])
+}
+
+func handleFileTaskCompleted(data interface{}) {
+	d, _ := data.(map[string]interface{})
+	fmt.Printf("File %s completed\n", d["file_key"])
+}
+
+func handleFileTaskFailed(data interface{}) {
+	d, _ := data.(map[string]interface{})
+	fmt.Printf("File %s failed: %s\n", d["file_key"], d["error"])
+}
+```
+
+```java JAVA
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpExchange;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+public class D3WebhookServer {
+
+    private static final String WEBHOOK_SECRET = System.getenv("D3_WEBHOOK_SECRET");
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    public static void main(String[] args) throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress(3000), 0);
+        server.createContext("/webhooks/d3", D3WebhookServer::handleWebhook);
+        server.start();
+        System.out.println("Webhook server listening on :3000");
+    }
+
+    private static void handleWebhook(HttpExchange exchange) throws Exception {
+        if (!"POST".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(405, -1);
+            return;
+        }
+
+        byte[] body = exchange.getRequestBody().readAllBytes();
+        String signature = exchange.getRequestHeaders().getFirst("X-D3-Signature");
+
+        if (!verifySignature(body, signature, WEBHOOK_SECRET)) {
+            sendResponse(exchange, 401, "{\"error\":\"Invalid signature\"}");
+            return;
+        }
+
+        JsonNode event = mapper.readTree(body);
+        String eventType = event.get("type").asText();
+
+        switch (eventType) {
+            case "operation.completed":
+                handleOperationCompleted(event.get("payload"));
+                break;
+            case "operation.failed":
+                handleOperationFailed(event.get("payload"));
+                break;
+            case "fileTask.completed":
+                handleFileTaskCompleted(event.get("data"));
+                break;
+            case "fileTask.failed":
+                handleFileTaskFailed(event.get("data"));
+                break;
+            default:
+                System.out.println("Unhandled event type: " + eventType);
+        }
+
+        sendResponse(exchange, 200, "{\"received\":true}");
+    }
+
+    private static boolean verifySignature(byte[] body, String signature, String secret) throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        byte[] hash = mac.doFinal(body);
+        String expected = bytesToHex(hash);
+        return MessageDigest.isEqual(
+            expected.getBytes(StandardCharsets.UTF_8),
+            signature.getBytes(StandardCharsets.UTF_8)
+        );
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) sb.append(String.format("%02x", b));
+        return sb.toString();
+    }
+
+    private static void sendResponse(HttpExchange exchange, int status, String body) throws Exception {
+        byte[] resp = body.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(status, resp.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(resp);
+        }
+    }
+
+    private static void handleOperationCompleted(JsonNode payload) {
+        JsonNode task = payload.get("main_task");
+        System.out.printf("Operation %s completed%n", task.get("id").asText());
+        JsonNode count = task.get("count");
+        System.out.printf("  %d/%d files succeeded%n",
+            count.get("success").asInt(), count.get("total").asInt());
+    }
+
+    private static void handleOperationFailed(JsonNode payload) {
+        System.out.printf("Operation %s failed%n",
+            payload.get("main_task").get("id").asText());
+    }
+
+    private static void handleFileTaskCompleted(JsonNode data) {
+        System.out.printf("File %s completed%n", data.get("file_key").asText());
+    }
+
+    private static void handleFileTaskFailed(JsonNode data) {
+        System.out.printf("File %s failed: %s%n",
+            data.get("file_key").asText(), data.get("error").asText());
+    }
+}
+```
+
+</CodeGroup>
+
+## Verifying signatures
+
+When a `webhook_secret` is configured, every webhook request includes an `X-D3-Signature` header containing the HMAC-SHA256 hex digest of the raw request body, keyed with your secret.
+
+**Always** verify signatures before processing events. Use a **constant-time comparison** function to prevent timing attacks.
+
+### Signature verification example
+
+<CodeGroup>
+```ts NODE
+import crypto from "crypto";
+
+function verifyD3Signature(
+  rawBody: Buffer,
+  signatureHeader: string,
+  secret: string
+): boolean {
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(rawBody)
+    .digest("hex");
+
+  return crypto.timingSafeEqual(
+    Buffer.from(signatureHeader),
+    Buffer.from(expected)
+  );
+}
+```
+
+```python PYTHON
+import hmac
+import hashlib
+
+def verify_d3_signature(
+    raw_body: bytes,
+    signature_header: str,
+    secret: str,
+) -> bool:
+    expected = hmac.new(
+        secret.encode(), raw_body, hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(signature_header, expected)
+```
+
+```php PHP
+function verifyD3Signature(
+    string $rawBody,
+    string $signatureHeader,
+    string $secret
+): bool {
+    $expected = hash_hmac('sha256', $rawBody, $secret);
+    return hash_equals($expected, $signatureHeader);
+}
+```
+
+```ruby RUBY
+require 'openssl'
+
+def verify_d3_signature(raw_body, signature_header, secret)
+  expected = OpenSSL::HMAC.hexdigest('SHA256', secret, raw_body)
+  Rack::Utils.secure_compare(expected, signature_header)
+end
+```
+
+```go GO
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+)
+
+func verifyD3Signature(rawBody []byte, signatureHeader, secret string) bool {
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write(rawBody)
+	expected := hex.EncodeToString(mac.Sum(nil))
+	return hmac.Equal([]byte(expected), []byte(signatureHeader))
+}
+```
+
+```java JAVA
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+public static boolean verifyD3Signature(
+    byte[] rawBody,
+    String signatureHeader,
+    String secret
+) throws Exception {
+    Mac mac = Mac.getInstance("HmacSHA256");
+    mac.init(new SecretKeySpec(
+        secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"
+    ));
+    byte[] hash = mac.doFinal(rawBody);
+    StringBuilder hex = new StringBuilder();
+    for (byte b : hash) hex.append(String.format("%02x", b));
+    String expected = hex.toString();
+
+    return MessageDigest.isEqual(
+        expected.getBytes(StandardCharsets.UTF_8),
+        signatureHeader.getBytes(StandardCharsets.UTF_8)
+    );
+}
+```
+
+</CodeGroup>
+
 ## Delivery & retries
 
 The webhook audit and retry flow (simplified from the design docs):
@@ -118,10 +724,10 @@ You can inspect delivery health and failures through the webhook management sect
 
 ## Security
 
-When a `webhook_secret` is configured, webhooks are signed with an HMAC (exact header and algorithm are implementation details, typically `X-D3-Signature` with an HMAC‑SHA256 over the request body).
-
 Recommended best practices:
 
-- Always validate signatures using the shared `webhook_secret`.
-- Use HTTPS for webhook endpoints.
-- Treat webhook bodies as **event notifications** and fetch sensitive data via the Business API where needed.
+- **Verify signatures** – always validate the `X-D3-Signature` header using your `webhook_secret` and a constant-time comparison.
+- **Use HTTPS** – only register HTTPS endpoints to protect payloads in transit.
+- **Respond quickly** – return a `2xx` within a few seconds; offload heavy processing to a background queue.
+- **Idempotency** – webhooks may be retried, so deduplicate using the event `type` + `timestamp` or track processed event IDs.
+- **Treat as notifications** – fetch sensitive data (like download URLs) via the Business API rather than relying solely on webhook payloads.
