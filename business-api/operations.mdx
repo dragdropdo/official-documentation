@@ -53,6 +53,7 @@ Use `main_task_id` for status polling and correlating webhook notifications.
 ## Create an operation
 
 <CodeGroup>
+
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
@@ -242,6 +243,7 @@ System.out.println("Main task ID: " + operation.getMainTaskId());
 Before creating an operation, you can validate that a given extension and action are supported:
 
 <CodeGroup>
+
 ```bash cURL
 curl -X GET "https://api.dragdropdo.com/api/v1/supported-operation?ext=pdf&action=convert&convert_to=png" \
   -H "Authorization: Bearer your-api-key"
@@ -390,7 +392,7 @@ type SupportedOperationResponse = {
 Example responses:
 
 - **Only `ext` provided** – returns `available_actions` for that extension.
-- **`ext` + `action`** – returns `supported` + `parameters` metadata, such as:
+- **`ext` \+ `action`** – returns `supported` \+ `parameters` metadata, such as:
   - valid `convert_to` targets for `convert`
   - valid `compression_value` options for `compress`
 
@@ -407,6 +409,7 @@ Common use cases:
 - Media: `mp4 → mp3`, `wav → mp3`.
 
 <CodeGroup>
+
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
@@ -519,6 +522,7 @@ operation = client.convert(List.of("file_key_1"), "pdf", null);
 - `compression_value` – compression level such as `recommended`, `high`, or `low` (see supported‑operation metadata).
 
 <CodeGroup>
+
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
@@ -613,6 +617,7 @@ OperationResponse operation = client.compress(List.of("file_key_1"), "recommende
 Merges multiple compatible files (typically PDFs) into a single output file.
 
 <CodeGroup>
+
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
@@ -704,6 +709,7 @@ OperationResponse operation = client.merge(List.of("file_key_1", "file_key_2"), 
 Creates a zip archive containing the given files.
 
 <CodeGroup>
+
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
@@ -790,113 +796,12 @@ OperationResponse operation = client.zip(List.of("file_key_1", "file_key_2"), nu
 
 </CodeGroup>
 
-### Share
-
-Generates shareable links for the specified files. Additional behavior may be controlled via `notes`.
-
-<CodeGroup>
-```bash cURL
-curl -X POST https://api.dragdropdo.com/api/v1/do \
-  -H "Authorization: Bearer your-api-key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "action": "share",
-    "file_keys": ["file_key_1"],
-    "notes": {
-      "expires_in_days": "7"
-    }
-  }'
-```
-
-```ts NODE
-import { Dragdropdo } from "dragdropdo-sdk";
-
-const client = new Dragdropdo({
-  apiKey: "your-api-key",
-  baseURL: "https://api.dragdropdo.com",
-});
-
-// Generate shareable links
-const operation = await client.share(["file_key_1"], {
-  expires_in_days: "7",
-});
-```
-
-```python PYTHON
-from dragdropdo_sdk import Dragdropdo, D3ClientConfig
-
-client = Dragdropdo(
-    api_key="your-api-key",
-    base_url="https://api.dragdropdo.com"
-)
-
-# Generate shareable links
-operation = client.share(["file_key_1"], notes={"expires_in_days": "7"})
-```
-
-```php PHP
-use DragdropdoSdk\Dragdropdo;
-
-$client = new Dragdropdo([
-    'api_key' => 'your-api-key',
-    'base_url' => 'https://api.dragdropdo.com',
-]);
-
-// Generate shareable links
-$operation = $client->share(['file_key_1'], ['expires_in_days' => '7']);
-```
-
-```ruby RUBY
-require 'dragdropdo_sdk'
-
-client = DragdropdoSdk::Dragdropdo.new(
-  api_key: 'your-api-key',
-  base_url: 'https://api.dragdropdo.com'
-)
-
-# Generate shareable links
-operation = client.share(file_keys: ['file_key_1'], notes: { expires_in_days: '7' })
-```
-
-```go GO
-import "github.com/d3/dragdropdo-sdk-go"
-
-client, _ := d3.NewDragdropdo(d3.Config{
-    APIKey:  "your-api-key",
-    BaseURL: "https://api.dragdropdo.com",
-});
-
-// Generate shareable links
-operation, _ := client.Share(
-    []string{"file_key_1"},
-    map[string]string{"expires_in_days": "7"},
-)
-```
-
-```java JAVA
-import com.dragdropdo.sdk.Dragdropdo;
-import com.dragdropdo.sdk.DragdropdoConfig;
-import java.util.*;
-
-Dragdropdo client = new Dragdropdo(
-    new DragdropdoConfig("your-api-key")
-        .setBaseUrl("https://api.dragdropdo.com")
-);
-
-// Generate shareable links
-OperationResponse operation = client.share(
-    List.of("file_key_1"),
-    Map.of("expires_in_days", "7")
-);
-```
-
-</CodeGroup>
-
 ### Lock PDF
 
 Protects PDFs with a password.
 
 <CodeGroup>
+
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
@@ -991,6 +896,7 @@ OperationResponse operation = client.lockPdf(List.of("file_key_1"), "secure-pass
 Removes password protection from PDFs.
 
 <CodeGroup>
+
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \
@@ -1085,6 +991,7 @@ OperationResponse operation = client.unlockPdf(List.of("file_key_1"), "current-p
 Changes the password on password‑protected PDFs.
 
 <CodeGroup>
+
 ```bash cURL
 curl -X POST https://api.dragdropdo.com/api/v1/do \
   -H "Authorization: Bearer your-api-key" \

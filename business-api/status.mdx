@@ -6,32 +6,33 @@ description: "Check operation and per-file status via the Business API."
 The status endpoints let you track the lifecycle of operations created via `/api/v1/do`.
 
 - `GET /api/v1/status/:mainTaskId`
-- `GET /api/v1/status/:mainTaskId/:fileTaskId`
+- `GET /api/v1/status/:mainTaskId/:fileKey`
 
-These routes are backed by the `ExternalStatusURI`, `ExternalStatusFileData`, and `ExternalStatusResponse` types.
+These routes are backed by the `OperationStatusFileData`, and `OperationStatusResponse` types.
 
 ## Status schema
 
 ```ts
-type ExternalStatusFileData = {
+type OperationStatusFileData = {
   file_key: string; // resulting file key (output if available, otherwise input)
-  status: "queued" | "running" | "completed" | "failed";
+  status: "QUEUED" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
   download_link?: string; // relative path to download the output file
   error_code?: string; // optional short failure code
   error_message?: string; // optional human-readable message
 };
 
-type ExternalStatusResponse = {
-  operation_status: "queued" | "running" | "completed" | "failed";
-  files_data?: ExternalStatusFileData[];
+type OperationStatusResponse = {
+  operation_status: "QUEUED" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
+  files_data?: OperationStatusFileData[];
 };
 ```
 
 ## Get main task status
 
 <CodeGroup>
+
 ```bash cURL
-curl -X GET https://api.dragdropdo.com/api/v1/status/task_abc123 \
+curl -X GET https://api.dragdropdo.com/api/v1/status/main_task_abc123 \
   -H "Authorization: Bearer your-api-key"
 ```
 
@@ -166,12 +167,12 @@ if ("completed".equals(status.getOperationStatus())) {
     {
       "file_key": "file_key_1_result",
       "status": "completed",
-      "download_link": "/v1/download/file_key_1_result"
+      "download_link": "https://api.dragdropdo.com/v1/download/file_key_1_result"
     },
     {
       "file_key": "file_key_2_result",
       "status": "completed",
-      "download_link": "/v1/download/file_key_2_result"
+      "download_link": "https://api.dragdropdo.com/v1/download/file_key_2_result"
     }
   ]
 }
@@ -196,8 +197,9 @@ if ("completed".equals(status.getOperationStatus())) {
 ## Get specific file task status
 
 <CodeGroup>
+
 ```bash cURL
-curl -X GET https://api.dragdropdo.com/api/v1/status/task_abc123/file_task_xyz \
+curl -X GET https://api.dragdropdo.com/api/v1/status/task_abc123/file_key_123 \
   -H "Authorization: Bearer your-api-key"
 ```
 
@@ -312,7 +314,7 @@ if (!status.getFilesData().isEmpty()) {
 
 </CodeGroup>
 
-When `fileTaskId` is present, the response narrows to the matching file task (if found).
+When `fileKey` is present, the response narrows to the matching file task (if found).
 
 ## Polling vs. webhooks
 
@@ -322,6 +324,7 @@ When `fileTaskId` is present, the response narrows to the matching file task (if
 ### Polling example
 
 <CodeGroup>
+
 ```bash cURL
 # Poll in a loop (bash example)
 while true; do
