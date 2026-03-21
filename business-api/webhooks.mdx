@@ -99,7 +99,7 @@ From the Business API design, the main events are:
 
 ## Receiving webhooks
 
-Your webhook endpoint must accept **POST** requests with a JSON body. D3 sends the event payload along with an `X-D3-Signature` header (when a `webhook_secret` is configured). Your server should:
+Your webhook endpoint must accept **POST** requests with a JSON body. D3 sends the event payload along with an `X-Webhook-Signature` header (when a `webhook_secret` is configured). Your server should:
 
 1. Read the raw request body.
 2. Verify the HMAC-SHA256 signature.
@@ -119,7 +119,7 @@ app.post(
   "/webhooks/d3",
   express.raw({ type: "application/json" }),
   (req, res) => {
-    const signature = req.headers["x-d3-signature"] as string;
+    const signature = req.headers["x-webhook-signature"] as string;
     const body = req.body;
 
     if (!verifySignature(body, signature, process.env.D3_WEBHOOK_SECRET!)) {
@@ -203,7 +203,7 @@ WEBHOOK_SECRET = os.environ["D3_WEBHOOK_SECRET"]
 
 @app.route("/webhooks/d3", methods=["POST"])
 def handle_webhook():
-    signature = request.headers.get("X-D3-Signature", "")
+    signature = request.headers.get("X-Webhook-Signature", "")
     body = request.get_data()
 
     if not verify_signature(body, signature, WEBHOOK_SECRET):
@@ -263,7 +263,7 @@ if __name__ == "__main__":
 
 $webhookSecret = getenv('D3_WEBHOOK_SECRET');
 $body = file_get_contents('php://input');
-$signature = $_SERVER['HTTP_X_D3_SIGNATURE'] ?? '';
+$signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE'] ?? '';
 
 if (!verifySignature($body, $signature, $webhookSecret)) {
     http_response_code(401);
@@ -336,7 +336,7 @@ WEBHOOK_SECRET = ENV.fetch('D3_WEBHOOK_SECRET')
 
 post '/webhooks/d3' do
   body = request.body.read
-  signature = request.env['HTTP_X_D3_SIGNATURE'] || ''
+  signature = request.env['HTTP_X_WEBHOOK_SIGNATURE'] || ''
 
   unless verify_signature(body, signature, WEBHOOK_SECRET)
     halt 401, { 'Content-Type' => 'application/json' },
@@ -421,7 +421,7 @@ func handleWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	signature := r.Header.Get("X-D3-Signature")
+	signature := r.Header.Get("X-Webhook-Signature")
 	if !verifySignature(body, signature, webhookSecret) {
 		http.Error(w, "Invalid signature", http.StatusUnauthorized)
 		return
@@ -513,7 +513,7 @@ public class D3WebhookServer {
         }
 
         byte[] body = exchange.getRequestBody().readAllBytes();
-        String signature = exchange.getRequestHeaders().getFirst("X-D3-Signature");
+        String signature = exchange.getRequestHeaders().getFirst("X-Webhook-Signature");
 
         if (!verifySignature(body, signature, WEBHOOK_SECRET)) {
             sendResponse(exchange, 401, "{\"error\":\"Invalid signature\"}");
@@ -597,7 +597,7 @@ public class D3WebhookServer {
 
 ## Verifying signatures
 
-When a `webhook_secret` is configured, every webhook request includes an `X-D3-Signature` header containing the HMAC-SHA256 hex digest of the raw request body, keyed with your secret.
+When a `webhook_secret` is configured, every webhook request includes an `X-Webhook-Signature` header containing the HMAC-SHA256 hex digest of the raw request body, keyed with your secret.
 
 **Always** verify signatures before processing events. Use a **constant-time comparison** function to prevent timing attacks.
 
@@ -726,7 +726,7 @@ You can inspect delivery health and failures through the webhook management sect
 
 Recommended best practices:
 
-- **Verify signatures** – always validate the `X-D3-Signature` header using your `webhook_secret` and a constant-time comparison.
+- **Verify signatures** – always validate the `X-Webhook-Signature` header using your `webhook_secret` and a constant-time comparison.
 - **Use HTTPS** – only register HTTPS endpoints to protect payloads in transit.
 - **Respond quickly** – return a `2xx` within a few seconds; offload heavy processing to a background queue.
 - **Idempotency** – webhooks may be retried, so deduplicate using the event `type` + `timestamp` or track processed event IDs.
