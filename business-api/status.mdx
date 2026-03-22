@@ -211,10 +211,10 @@ const client = new Dragdropdo({
   baseURL: "https://api.dragdropdo.com",
 });
 
-// Get specific file task status
+// Get specific file status by file key
 const status = await client.getStatus({
   mainTaskId: "task_abc123",
-  fileTaskId: "file_task_xyz",
+  fileKey: "file_key_123",
 });
 
 console.log("File status:", status.filesData?.[0]?.status);
@@ -228,10 +228,10 @@ client = Dragdropdo(
     base_url="https://api.dragdropdo.com"
 )
 
-# Get specific file task status
+# Get specific file status by file key
 status = client.get_status(
     main_task_id="task_abc123",
-    file_task_id="file_task_xyz"
+    file_key="file_key_123"
 )
 
 print("File status:", status.files_data[0].status if status.files_data else None)
@@ -245,10 +245,10 @@ $client = new Dragdropdo([
     'base_url' => 'https://api.dragdropdo.com',
 ]);
 
-// Get specific file task status
+// Get specific file status by file key
 $status = $client->getStatus([
     'main_task_id' => 'task_abc123',
-    'file_task_id' => 'file_task_xyz',
+    'file_key' => 'file_key_123',
 ]);
 
 echo "File status: " . ($status['files_data'][0]['status'] ?? 'N/A') . "\n";
@@ -262,10 +262,10 @@ client = DragdropdoSdk::Dragdropdo.new(
   base_url: 'https://api.dragdropdo.com'
 )
 
-# Get specific file task status
+# Get specific file status by file key
 status = client.get_status(
   main_task_id: 'task_abc123',
-  file_task_id: 'file_task_xyz'
+  file_key: 'file_key_123'
 )
 
 puts "File status: #{status[:files_data]&.first&.dig(:status)}"
@@ -279,10 +279,10 @@ client, _ := d3.NewDragdropdo(d3.Config{
     BaseURL: "https://api.dragdropdo.com",
 });
 
-// Get specific file task status
+// Get specific file status by file key
 status, _ := client.GetStatus(d3.StatusOptions{
     MainTaskID: "task_abc123",
-    FileTaskID: "file_task_xyz",
+    FileKey:    "file_key_123",
 });
 
 if len(status.FilesData) > 0 {
@@ -300,11 +300,11 @@ Dragdropdo client = new Dragdropdo(
         .setBaseUrl("https://api.dragdropdo.com")
 );
 
-// Get specific file task status
+// Get specific file status by file key
 StatusResponse status = client.getStatus(
     new StatusOptions()
         .setMainTaskId("task_abc123")
-        .setFileTaskId("file_task_xyz")
+        .setFileKey("file_key_123")
 );
 
 if (!status.getFilesData().isEmpty()) {

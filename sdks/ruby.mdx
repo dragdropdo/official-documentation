@@ -162,8 +162,8 @@ client.reset_pdf_password(file_keys:, old_password:, new_password:, notes: nil)
 ## Status & polling
 
 ```ruby
-get_status(main_task_id:, file_task_id: nil)
-poll_status(main_task_id:, file_task_id: nil, interval: 2000, timeout: 300000, on_update: nil)
+get_status(main_task_id:, file_key: nil)
+poll_status(main_task_id:, file_key: nil, interval: 2000, timeout: 300000, on_update: nil)
 ```
 
 Examples:
