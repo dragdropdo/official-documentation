@@ -574,7 +574,7 @@ operation = client.convert(List.of("file_key_1"), "pdf", null);
 
 ### Compress
 
-- `compression_value` – compression level such as `recommended`, `high`, or `low` (see supported‑operation metadata).
+- `compression_value` – compression level such as `recommended_compression`, `extreme_compression`, or `less_compression` (see supported‑operation metadata).
 
 <CodeGroup>
 
@@ -586,7 +586,7 @@ curl -X POST https://api.dragdropdo.com/api/v1/do \
     "action": "compress",
     "file_keys": ["file_key_1"],
     "parameters": {
-      "compression_value": "recommended"
+      "compression_value": "recommended_compression"
     }
   }'
 ```
