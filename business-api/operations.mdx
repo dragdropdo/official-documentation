@@ -244,8 +244,19 @@ Before creating an operation, you can validate that a given extension and action
 <CodeGroup>
 
 ```bash cURL
-curl -X GET "https://api.dragdropdo.com/api/v1/supported-operation?ext=pdf&action=convert&convert_to=png" \
-  -H "Authorization: Bearer your-api-key"
+curl -X POST https://api.dragdropdo.com/api/v1/supported-operation \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ext":"jpg",
+    "action": "CONVERT",
+    "parameters": {
+        "convert_to": "png"
+    }
+  }'
+```
+
+```text
 ```
 
 ```ts NODE
@@ -256,15 +267,26 @@ const client = new Dragdropdo({
   baseURL: "https://api.dragdropdo.com",
 });
 
-// Check if convert to PNG is supported
-const supported = await client.checkSupportedOperation({
-  ext: "pdf",
-  action: "convert",
-  parameters: { convert_to: "png" },
+// Using convenience method
+const operation = await client.convert(["file_key_1"], "png", {
+  user_id: "user-123",
+  source: "api",
 });
 
-console.log("Supported:", supported.supported);
-console.log("Available actions:", supported.availableActions);
+// Or using createOperation
+const operation = await client.createOperation({
+  action: "convert",
+  fileKeys: ["file_key_1"],
+  parameters: {
+    convert_to: "png",
+  },
+  notes: {
+    user_id: "user-123",
+    source: "api",
+  },
+});
+
+console.log("Main task ID:", operation.mainTaskId);
 ```
 
 ```python PYTHON
@@ -275,15 +297,22 @@ client = Dragdropdo(
     base_url="https://api.dragdropdo.com"
 )
 
-# Check if convert to PNG is supported
-supported = client.check_supported_operation(
-    ext="pdf",
-    action="convert",
-    parameters={"convert_to": "png"}
+# Using convenience method
+operation = client.convert(
+    file_keys=["file_key_1"],
+    convert_to="png",
+    notes={"user_id": "user-123", "source": "api"}
 )
 
-print("Supported:", supported.supported)
-print("Available actions:", supported.available_actions)
+# Or using create_operation
+operation = client.create_operation(
+    action="convert",
+    file_keys=["file_key_1"],
+    parameters={"convert_to": "png"},
+    notes={"user_id": "user-123", "source": "api"}
+)
+
+print("Main task ID:", operation.main_task_id)
 ```
 
 ```php PHP
@@ -294,15 +323,22 @@ $client = new Dragdropdo([
     'base_url' => 'https://api.dragdropdo.com',
 ]);
 
-// Check if convert to PNG is supported
-$supported = $client->checkSupportedOperation([
-    'ext' => 'pdf',
+// Using convenience method
+$operation = $client->convert(
+    ['file_key_1'],
+    'png',
+    ['user_id' => 'user-123', 'source' => 'api']
+);
+
+// Or using createOperation
+$operation = $client->createOperation([
     'action' => 'convert',
+    'file_keys' => ['file_key_1'],
     'parameters' => ['convert_to' => 'png'],
+    'notes' => ['user_id' => 'user-123', 'source' => 'api'],
 ]);
 
-echo "Supported: " . ($supported['supported'] ? 'true' : 'false') . "\n";
-echo "Available actions: " . implode(', ', $supported['available_actions']) . "\n";
+echo "Main task ID: " . $operation['main_task_id'] . "\n";
 ```
 
 ```ruby RUBY
@@ -313,15 +349,22 @@ client = DragdropdoSdk::Dragdropdo.new(
   base_url: 'https://api.dragdropdo.com'
 )
 
-# Check if convert to PNG is supported
-supported = client.check_supported_operation(
-  ext: 'pdf',
-  action: 'convert',
-  parameters: { convert_to: 'png' }
+# Using convenience method
+operation = client.convert(
+  file_keys: ['file_key_1'],
+  convert_to: 'png',
+  notes: { user_id: 'user-123', source: 'api' }
 )
 
-puts "Supported: #{supported[:supported]}"
-puts "Available actions: #{supported[:available_actions]}"
+# Or using create_operation
+operation = client.create_operation(
+  action: 'convert',
+  file_keys: ['file_key_1'],
+  parameters: { convert_to: 'png' },
+  notes: { user_id: 'user-123', source: 'api' }
+)
+
+puts "Main task ID: #{operation[:main_task_id]}"
 ```
 
 ```go GO
@@ -332,17 +375,24 @@ client, _ := d3.NewDragdropdo(d3.Config{
     BaseURL: "https://api.dragdropdo.com",
 });
 
-// Check if convert to PNG is supported
-supported, _ := client.CheckSupportedOperation(d3.SupportedOperationOptions{
-    Ext:    "pdf",
-    Action: "convert",
+// Using convenience method
+operation, _ := client.Convert(
+    []string{"file_key_1"},
+    "png",
+    map[string]string{"user_id": "user-123", "source": "api"},
+);
+
+// Or using CreateOperation
+operation, _ := client.CreateOperation(d3.OperationOptions{
+    Action:   "convert",
+    FileKeys: []string{"file_key_1"},
     Parameters: map[string]interface{}{
         "convert_to": "png",
     },
+    Notes: map[string]string{"user_id": "user-123", "source": "api"},
 });
 
-fmt.Printf("Supported: %t\n", supported.Supported)
-fmt.Printf("Available actions: %v\n", supported.AvailableActions)
+fmt.Printf("Main task ID: %s\n", operation.MainTaskID)
 ```
 
 ```java JAVA
@@ -356,16 +406,22 @@ Dragdropdo client = new Dragdropdo(
         .setBaseUrl("https://api.dragdropdo.com")
 );
 
-// Check if convert to PNG is supported
-SupportedOperationResponse supported = client.checkSupportedOperation(
-    new SupportedOperationOptions()
-        .setExt("pdf")
-        .setAction("convert")
-        .setParameters(Map.of("convert_to", "png"))
+// Using convenience method
+OperationResponse operation = client.convert(
+    List.of("file_key_1"),
+    "png",
+    Map.of("user_id", "user-123", "source", "api")
 );
 
-System.out.println("Supported: " + supported.isSupported());
-System.out.println("Available actions: " + supported.getAvailableActions());
+// Or using createOperation
+operation = client.createOperation(new OperationOptions(
+    "convert",
+    List.of("file_key_1"),
+    Map.of("convert_to", "png"),
+    Map.of("user_id", "user-123", "source", "api")
+));
+
+System.out.println("Main task ID: " + operation.getMainTaskId());
 ```
 
 </CodeGroup>
