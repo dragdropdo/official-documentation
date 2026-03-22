@@ -120,7 +120,7 @@ create_operation(action:, file_keys:, parameters: nil, notes: nil)
 
 **Parameters:**
 
-- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "lock" | "unlock" | "reset_password"`.
 - `file_keys` (**required**) – array of file keys from upload.
 - `parameters` (optional) – action‑specific parameters.
 - `notes` (optional) – user metadata.
@@ -153,7 +153,6 @@ client.convert(file_keys:, convert_to:, notes: nil)
 client.compress(file_keys:, compression_value: 'recommended', notes: nil)
 client.merge(file_keys:, notes: nil)
 client.zip(file_keys:, notes: nil)
-client.share(file_keys:, notes: nil)
 client.lock_pdf(file_keys:, password:, notes: nil)
 client.unlock_pdf(file_keys:, password:, notes: nil)
 client.reset_pdf_password(file_keys:, old_password:, new_password:, notes: nil)
@@ -165,6 +164,18 @@ client.reset_pdf_password(file_keys:, old_password:, new_password:, notes: nil)
 get_status(main_task_id:, file_key: nil)
 poll_status(main_task_id:, file_key: nil, interval: 2000, timeout: 300000, on_update: nil)
 ```
+
+**`get_status` keyword arguments** (conceptually `StatusOptions`):
+
+- `main_task_id` (**required**) – main task ID from `create_operation` / convenience helpers.
+- `file_key` (optional) – when set, requests status for that specific input file.
+
+**`poll_status` keyword arguments** (extends the same inputs with polling fields):
+
+- `main_task_id` (**required**), `file_key` (optional) – as for `get_status`.
+- `interval` (optional) – milliseconds between polls, default `2000`.
+- `timeout` (optional) – maximum total polling time in milliseconds, default `300000` (5 minutes).
+- `on_update` (optional) – proc/lambda receiving the status hash after each successful fetch.
 
 Examples:
 

@@ -111,7 +111,7 @@ createOperation(array $options): array
 
 **Options:**
 
-- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "lock" | "unlock" | "reset_password"`.
 - `file_keys` (**required**) – array of file keys from upload.
 - `parameters` (optional) – action‑specific parameters.
 - `notes` (optional) – user metadata.
@@ -144,7 +144,6 @@ $client->convert($fileKeys, $convertTo, $notes = null);
 $client->compress($fileKeys, $compressionValue = 'recommended', $notes = null);
 $client->merge($fileKeys, $notes = null);
 $client->zip($fileKeys, $notes = null);
-$client->share($fileKeys, $notes = null);
 $client->lockPdf($fileKeys, $password, $notes = null);
 $client->unlockPdf($fileKeys, $password, $notes = null);
 $client->resetPdfPassword($fileKeys, $oldPassword, $newPassword, $notes = null);
@@ -156,6 +155,18 @@ $client->resetPdfPassword($fileKeys, $oldPassword, $newPassword, $notes = null);
 getStatus(array $options): array
 pollStatus(array $options): array
 ```
+
+**`getStatus` options** (same shape as single‑fetch inputs for polling):
+
+- `main_task_id` (**required**) – main task ID from `createOperation` / convenience helpers.
+- `file_key` (optional) – when set, requests status for that specific input file.
+
+**`pollStatus` options** (includes all `getStatus` keys, plus polling controls):
+
+- `main_task_id` (**required**), `file_key` (optional) – as above.
+- `interval` (optional) – milliseconds between polls, default `2000`.
+- `timeout` (optional) – maximum total polling time in milliseconds, default `300000` (5 minutes).
+- `on_update` (optional) – callable receiving the status array after each successful fetch.
 
 Examples:
 

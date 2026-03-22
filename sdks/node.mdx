@@ -109,7 +109,7 @@ createOperation(options: OperationOptions): Promise<OperationResponse>
 
 **Options:**
 
-- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "lock" | "unlock" | "reset_password"`.
 - `fileKeys` (**required**) – array of file keys from upload.
 - `parameters` (optional) – action‑specific parameters.
 - `notes` (optional) – user metadata.
@@ -142,7 +142,6 @@ await client.convert(fileKeys, convertTo, notes?);
 await client.compress(fileKeys, compressionValue?, notes?);
 await client.merge(fileKeys, notes?);
 await client.zip(fileKeys, notes?);
-await client.share(fileKeys, notes?);
 await client.lockPdf(fileKeys, password, notes?);
 await client.unlockPdf(fileKeys, password, notes?);
 await client.resetPdfPassword(fileKeys, oldPassword, newPassword, notes?);
@@ -154,6 +153,18 @@ await client.resetPdfPassword(fileKeys, oldPassword, newPassword, notes?);
 getStatus(options: StatusOptions): Promise<StatusResponse>
 pollStatus(options: PollStatusOptions): Promise<StatusResponse>
 ```
+
+**`StatusOptions`** (used by `getStatus`):
+
+- `mainTaskId` (**required**) – main task ID from `createOperation` / convenience helpers.
+- `fileKey` (optional) – when set, requests status for that specific input file.
+
+**`PollStatusOptions`** (extends `StatusOptions`; used by `pollStatus`):
+
+- Same fields as `StatusOptions`, plus:
+- `interval` (optional) – milliseconds between polls, default `2000`.
+- `timeout` (optional) – maximum total polling time in milliseconds, default `300000` (5 minutes).
+- `onUpdate` (optional) – `(status: StatusResponse) => void`, invoked after each successful status fetch.
 
 Examples:
 

@@ -108,7 +108,7 @@ create_operation(options: OperationOptions) -> OperationResponse
 
 **Options:**
 
-- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "lock" | "unlock" | "reset_password"`.
 - `file_keys` (**required**) – array of file keys from upload.
 - `parameters` (optional) – action‑specific parameters.
 - `notes` (optional) – user metadata.
@@ -141,7 +141,6 @@ client.convert(file_keys, convert_to, notes=None)
 client.compress(file_keys, compression_value="recommended", notes=None)
 client.merge(file_keys, notes=None)
 client.zip(file_keys, notes=None)
-client.share(file_keys, notes=None)
 client.lock_pdf(file_keys, password, notes=None)
 client.unlock_pdf(file_keys, password, notes=None)
 client.reset_pdf_password(file_keys, old_password, new_password, notes=None)
@@ -154,25 +153,41 @@ get_status(options: StatusOptions) -> StatusResponse
 poll_status(options: PollStatusOptions) -> StatusResponse
 ```
 
+**`StatusOptions`** (used by `get_status`):
+
+- `main_task_id` (**required**) – main task ID from `create_operation` / convenience helpers.
+- `file_key` (optional) – when set, requests status for that specific input file.
+
+**`PollStatusOptions`** (extends `StatusOptions`; used by `poll_status`):
+
+- Same fields as `StatusOptions`, plus:
+- `interval` (optional) – milliseconds between polls, default `2000`.
+- `timeout` (optional) – maximum total polling time in milliseconds, default `300000` (5 minutes).
+- `on_update` (optional) – `Callable[[StatusResponse], None]`, invoked after each successful status fetch.
+
 Examples:
 
 ```python
+from dragdropdo_sdk import StatusOptions, PollStatusOptions
+
 # Single status fetch
-status = client.get_status(main_task_id="task-123")
+status = client.get_status(StatusOptions(main_task_id="task-123"))
 
 # Poll until completion
 final_status = client.poll_status(
-    main_task_id="task-123",
-    interval=2000,
-    timeout=300000,
-    on_update=lambda status: print(f"Status: {status.operation_status}")
+    PollStatusOptions(
+        main_task_id="task-123",
+        interval=2000,
+        timeout=300000,
+        on_update=lambda status: print(f"Status: {status.operation_status}"),
+    )
 )
 ```
 
 ## Complete workflow example
 
 ```python
-from dragdropdo_sdk import Dragdropdo, D3APIError, D3ValidationError
+from dragdropdo_sdk import Dragdropdo, D3APIError, D3ValidationError, PollStatusOptions
 import os
 
 def process_file():
@@ -206,8 +221,10 @@ def process_file():
 
         # 4. Poll
         status = client.poll_status(
-            main_task_id=operation.main_task_id,
-            interval=2000
+            PollStatusOptions(
+                main_task_id=operation.main_task_id,
+                interval=2000,
+            )
         )
 
         if status.operation_status == "completed":

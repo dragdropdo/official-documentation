@@ -126,7 +126,7 @@ createOperation(OperationOptions options)
 
 **Options:**
 
-- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "lock" | "unlock" | "reset_password"`.
 - `fileKeys` (**required**) – list of file keys from upload.
 - `parameters` (optional) – action‑specific parameters.
 - `notes` (optional) – user metadata.
@@ -160,7 +160,6 @@ client.convert(fileKeys, convertTo, notes)
 client.compress(fileKeys, compressionValue, notes)
 client.merge(fileKeys, notes)
 client.zip(fileKeys, notes)
-client.share(fileKeys, notes)
 client.lockPdf(fileKeys, password, notes)
 client.unlockPdf(fileKeys, password, notes)
 client.resetPdfPassword(fileKeys, oldPassword, newPassword, notes)
@@ -172,6 +171,18 @@ client.resetPdfPassword(fileKeys, oldPassword, newPassword, notes)
 getStatus(StatusOptions options)
 pollStatus(PollStatusOptions options)
 ```
+
+**`StatusOptions`** (used by `getStatus`):
+
+- `mainTaskId` (**required**) – set via `setMainTaskId(String)`.
+- `fileKey` (optional) – set via `setFileKey(String)` when you need status for a specific input file.
+
+**`PollStatusOptions`** (extends `StatusOptions`; used by `pollStatus`):
+
+- Same setters as `StatusOptions`, plus:
+- `interval` (optional) – milliseconds between polls, default `2000` if unset (`setInterval(long)`).
+- `timeout` (optional) – maximum total polling time in milliseconds, default `300000` if unset (`setTimeout(long)`).
+- `onUpdate` (optional) – `Consumer<StatusResponse>` for each successful status fetch (`setOnUpdate`).
 
 Examples:
 

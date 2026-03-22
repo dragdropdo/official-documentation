@@ -8,6 +8,8 @@ File uploads are handled via presigned URLs to MinIO. The API exposes two main s
 - `POST /api/v1/initiate-upload` – create an upload session and receive presigned URLs.
 - `POST /api/v1/complete-upload` – finalize the upload and register the file for operations.
 
+**Single-part vs multipart:** For objects **5 GiB (5 × 2³⁰ bytes) or smaller**, you can upload the whole file in **one** presigned `PUT` (`parts: 1`). For **files larger than 5 GiB**, you **must** use **multipart** upload: set `parts` to the number of chunks you will upload (each chunk is uploaded with its own presigned URL), `PUT` each part separately, collect each response’s **`ETag`**, then call **`complete-upload`** with every `(etag, part_number)` pair. This matches S3‑compatible limits: a single `PUT` cannot exceed 5 GiB per object part.
+
 ## Initiate upload
 
 <CodeGroup>
@@ -145,7 +147,7 @@ System.out.println("Presigned URLs: " + uploadResult.getPresignedUrls());
 - `file_name` (**required**) – original file name including extension.
 - `size` (**required**) – file size in bytes.
 - `mime_type` (**required**) – MIME type (e.g. `application/pdf`).
-- `parts` (optional) – multipart upload parts; defaults to `1` when omitted or zero.
+- `parts` (optional) – number of multipart parts; defaults to `1` when omitted or zero. Use **`1`** for files **≤ 5 GiB**. For **> 5 GiB**, set `parts` to how many pieces you will upload (see [Multipart upload example](#multipart-upload-example-files-larger-than-5-gib)).
 
 **Response (`ExternalUploadResponse`):**
 
@@ -167,14 +169,38 @@ System.out.println("Presigned URLs: " + uploadResult.getPresignedUrls());
 
 ## Upload file contents
 
-Use the provided `presigned_urls` to upload file data directly to MinIO. For single‑part uploads there will be exactly one URL.
+Use the provided `presigned_urls` to upload file data directly to MinIO. For single‑part uploads there will be exactly one URL. For multipart uploads there is **one URL per part**, in order (index `0` → `part_number` **1**, and so on).
+
+### Getting `ETag` values for `complete-upload`
+
+After **each** successful presigned `PUT`:
+
+1. Read the **`ETag`** HTTP response header (not the request body).
+2. Remove surrounding **double quotes** if present (S3 and MinIO often return `"abc123..."`).
+3. Send that string as `parts[i].etag` with **`part_number`** equal to the 1‑based part index (first URL → `1`, second → `2`, …).
+
+If you omit a part or scramble `part_number` order, `complete-upload` can fail when the storage backend completes the multipart upload.
 
 <CodeGroup>
 ```bash cURL
-# Upload file to presigned URL
-curl -X PUT "https://minio.example.com/bucket/object?X-Amz-Signature=..." \
+# 1) Upload file to presigned URL (-i prints response headers; copy ETag for step 2)
+curl -i -X PUT "https://minio.example.com/bucket/object?X-Amz-Signature=..." \
   -H "Content-Type: application/pdf" \
   --data-binary "@document.pdf"
+
+# 2) Complete upload — use file_key, object_name, upload_id from initiate-upload,
+#    and etag / part_number from the PUT response (strip " quotes from ETag if present)
+curl -X POST https://api.dragdropdo.com/api/v1/complete-upload \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_key": "file_key_123",
+    "object_name": "external/...",
+    "upload_id": "upload-id",
+    "parts": [
+      { "etag": "etag-from-put-response", "part_number": 1 }
+    ]
+  }'
 ```
 
 ```ts NODE
@@ -267,9 +293,100 @@ client.newCall(request).execute();
 
 </CodeGroup>
 
+## Multipart upload example (files larger than 5 GiB)
+
+**Why multipart:** S3‑compatible storage allows at most **5 GiB per single `PUT`**. Objects **larger than 5 GiB** must be split into multiple parts: each part is uploaded with its own presigned URL, and you pass **every** part’s `ETag` into **`complete-upload`**.
+
+**Flow:**
+
+1. Decide how many parts `N` you need (each uploaded part’s body must be **≤ 5 GiB**; size the ranges so the whole file is covered).
+2. **`POST /api/v1/initiate-upload`** with **`parts`: `N`**, **`size`**: total file size in bytes, plus `file_name` and `mime_type`. The response includes **`N` entries** in `presigned_urls` (in order: part 1, part 2, …).
+3. For each index `i` from `0` to `N - 1`, **`PUT`** the corresponding byte range of your file to `presigned_urls[i]`. After each successful `PUT`, read **`ETag`** from the response headers and strip double quotes (see [Getting `ETag` values for `complete-upload`](#getting-etag-values-for-complete-upload)).
+4. **`POST /api/v1/complete-upload`** with **`parts`** listing **all `N` parts**, each with the correct **`part_number`** (`1` … `N`) matching the presigned URL order.
+
+Example: **three** parts — initiate with `"parts": 3`, upload three ranges, then complete with three `{ "etag", "part_number" }` objects.
+
+```bash
+# 0) Assume archive.tar is > 5 GiB — split into 3 PUTs (ranges are illustrative; use split/dd or your app)
+# 1) Initiate — parts must match how many presigned URLs you will use
+curl -X POST https://api.dragdropdo.com/api/v1/initiate-upload \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_name": "archive.tar",
+    "size": 6442450944,
+    "mime_type": "application/x-tar",
+    "parts": 3
+  }'
+
+# Save file_key, object_name, upload_id, presigned_urls[0..2] from JSON.
+
+# 2) PUT each part — capture ETag from each response (-D writes headers to stdout; trim quotes for JSON)
+curl -i -X PUT "$PRESIGNED_URL_PART_1" -H "Content-Type: application/x-tar" --data-binary "@part1.bin"
+curl -i -X PUT "$PRESIGNED_URL_PART_2" -H "Content-Type: application/x-tar" --data-binary "@part2.bin"
+curl -i -X PUT "$PRESIGNED_URL_PART_3" -H "Content-Type: application/x-tar" --data-binary "@part3.bin"
+
+# 3) Complete — one entry per part; part_number matches URL order (1 = first URL)
+curl -X POST https://api.dragdropdo.com/api/v1/complete-upload \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_key": "file_key_123",
+    "object_name": "external/...",
+    "upload_id": "upload-id",
+    "parts": [
+      { "etag": "etag-from-put-part-1", "part_number": 1 },
+      { "etag": "etag-from-put-part-2", "part_number": 2 },
+      { "etag": "etag-from-put-part-3", "part_number": 3 }
+    ]
+  }'
+```
+
+In application code, the pattern is the same as the official SDKs: loop over `presigned_urls`, `PUT` each chunk, push `{ etag: strippedETag, part_number: i + 1 }`, then `POST` the array to **`complete-upload`**.
+
 ## Complete upload
 
-Once all parts have been uploaded, finalize the upload so that the file can be used by operations.
+`POST /api/v1/complete-upload` finalizes the multipart upload in storage and registers the file so it can be referenced by **`file_key`** in `/api/v1/do` and related APIs. Call it only after every part has been uploaded successfully via the presigned `PUT` URLs.
+
+**Authentication:** same as other Business API routes — `Authorization: Bearer <your-api-key>` and `Content-Type: application/json`.
+
+### Request body
+
+JSON body (`CompleteUploadRequest`):
+
+```json
+{
+  "file_key": "file_key_123",
+  "object_name": "external/...",
+  "upload_id": "upload-id-from-initiate-response",
+  "parts": [
+    { "etag": "hex-or-quoted-etag-from-put-response", "part_number": 1 }
+  ]
+}
+```
+
+- `file_key` (**required**) – from `initiate-upload` response.
+- `object_name` (**required**) – from `initiate-upload` response.
+- `upload_id` (**required**) – from `initiate-upload` response.
+- `parts` (**required**) – one entry per uploaded part, in order:
+  - `etag` (**required**) – value of the `ETag` header from the corresponding presigned `PUT` response. If the header includes double quotes (common for S3‑compatible storage), strip them before sending.
+  - `part_number` (**required**) – 1‑based index matching the part and presigned URL order from initiate upload.
+
+For multipart uploads, include every part; for a single‑part upload, `parts` is a one‑element array.
+
+### Response
+
+On success, HTTP **200** with a JSON body (`CompleteUploadResponse`):
+
+```json
+{
+  "message": "Upload completed successfully. ETag: \"d41d8cd98f00b204e9800998ecf8427e\"",
+  "file_key": "file_key_123"
+}
+```
+
+- `message` – status text from the server (typically includes the stored object ETag after a successful complete). If the upload was already finalized, the message may instead be a short confirmation such as `file upload completed`.
+- `file_key` – echoes the key you sent; use this key in operations.
 
 <CodeGroup>
 ```bash cURL
@@ -294,9 +411,8 @@ const client = new Dragdropdo({
   baseURL: "https://api.dragdropdo.com",
 });
 
-// Note: uploadFile() automatically completes the upload
-// If you need to complete manually after multipart upload:
-// await client.completeUpload({ fileKey: "file_key_123" });
+// uploadFile() runs initiate-upload → presigned PUT(s) → complete-upload for you.
+// For a custom pipeline, POST /api/v1/complete-upload with the JSON body above (e.g. axios.post).
 ```
 
 ```python PYTHON
@@ -362,9 +478,4 @@ Dragdropdo client = new Dragdropdo(
 
 </CodeGroup>
 
-- `file_key` (**required**) – stable key returned by initiate upload.
-- `upload_id` (**required**) – upload ID returned by initiate upload.
-- `object_name` (**required**) – object name returned by initiate upload.
-- `parts` (**required**) – list of uploaded parts with `etag` and `part_number`.
-
-On success, the server persists metadata in the repository layer and the file becomes available for `/api/v1/do` operations.
+On success, the server persists metadata and the file becomes available for `/api/v1/do` operations.

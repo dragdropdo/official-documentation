@@ -124,7 +124,7 @@ CreateOperation(options OperationOptions) (*OperationResponse, error)
 
 **Options:**
 
-- `Action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "share" | "lock" | "unlock" | "reset_password"`.
+- `Action` (**required**) – `"convert" | "compress" | "merge" | "zip" | "lock" | "unlock" | "reset_password"`.
 - `FileKeys` (**required**) – array of file keys from upload.
 - `Parameters` (optional) – action‑specific parameters.
 - `Notes` (optional) – user metadata.
@@ -161,7 +161,6 @@ client.Convert(fileKeys, convertTo, notes)
 client.Compress(fileKeys, compressionValue, notes)
 client.Merge(fileKeys, notes)
 client.Zip(fileKeys, notes)
-client.Share(fileKeys, notes)
 client.LockPdf(fileKeys, password, notes)
 client.UnlockPdf(fileKeys, password, notes)
 client.ResetPdfPassword(fileKeys, oldPassword, newPassword, notes)
@@ -173,6 +172,18 @@ client.ResetPdfPassword(fileKeys, oldPassword, newPassword, notes)
 GetStatus(options StatusOptions) (*StatusResponse, error)
 PollStatus(options PollStatusOptions) (*StatusResponse, error)
 ```
+
+**`StatusOptions`** (used by `GetStatus`):
+
+- `MainTaskID` (**required**) – main task ID from `CreateOperation` / convenience helpers.
+- `FileKey` (optional) – when non‑empty, requests status for that specific input file.
+
+**`PollStatusOptions`** (embeds `StatusOptions`; used by `PollStatus`):
+
+- `StatusOptions` – nested struct with `MainTaskID` and `FileKey` as above.
+- `Interval` (optional) – `time.Duration` between polls (e.g. `2 * time.Second`); default `2s` if zero.
+- `Timeout` (optional) – maximum total polling duration (e.g. `5 * time.Minute`); default `5m` if zero.
+- `OnUpdate` (optional) – `func(StatusResponse)`, invoked after each successful status fetch.
 
 Examples:
 

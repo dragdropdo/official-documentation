@@ -4,7 +4,7 @@ description: "Get started with the D3 Business API in minutes."
 ---
 
 1. Generate an API key.
-2. Upload a file.
+2. Upload a file (`initiate-upload` → presigned PUT → `complete-upload`).
 3. Create an operation.
 4. Poll for status.
 
@@ -83,7 +83,7 @@ Store your `api_key` securely – it is only shown once in the dashboard. Authen
 
 ## 2. Upload a file
 
-Uploads are done in two steps using presigned URLs.
+Uploads use presigned URLs. The flow is: **`POST /api/v1/initiate-upload`** (get `file_key`, `object_name`, `upload_id`, and presigned URLs) → **HTTP PUT** each file part to its URL (collect the **`ETag`** from each response) → **`POST /api/v1/complete-upload`** to finalize the multipart upload and register the file for operations. The complete-upload request body includes `file_key`, `object_name`, `upload_id`, and `parts` (each part’s `etag` and `part_number`); the JSON response includes `message` and `file_key`. See **[Upload → Complete upload](/business-api/upload#complete-upload)** for the full request and response schema, authentication, and ETag handling. Official SDKs perform all of these steps when you call `uploadFile` / `upload_file`.
 
 <CodeGroup>
 ```bash cURL
@@ -98,20 +98,25 @@ curl -X POST https://api.dragdropdo.com/api/v1/initiate-upload \
     "parts": 1
   }'
 
-# Step 2: Upload to presigned URL
+# Step 2: Upload to presigned URL (use ETag from response headers in step 3)
 
 curl -X PUT "https://minio/..." \
  -H "Content-Type: application/pdf" \
  --data-binary "@document.pdf"
 
-# Step 3: Complete upload
+# Step 3: Complete upload — required to finalize the upload and obtain a usable file_key
 
 curl -X POST https://api.dragdropdo.com/api/v1/complete-upload \
- -H "Authorization: Bearer your-api-key" \
- -H "Content-Type: application/json" \
- -d '{
-"file_key": "file_key_123"
-}'
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_key": "file_key_123",
+    "object_name": "external/...",
+    "upload_id": "upload-id-from-initiate-response",
+    "parts": [
+      { "etag": "etag-from-put-response", "part_number": 1 }
+    ]
+  }'
 
 ````
 
@@ -123,7 +128,7 @@ const client = new Dragdropdo({
   baseURL: "https://api.dragdropdo.com",
 });
 
-// All steps handled automatically
+// initiate-upload, presigned PUT(s), and POST /api/v1/complete-upload are handled automatically
 const uploadResult = await client.uploadFile({
   file: "/path/to/document.pdf",
   fileName: "document.pdf",
@@ -142,7 +147,7 @@ client = Dragdropdo(
     base_url="https://api.dragdropdo.com"
 )
 
-# All steps handled automatically
+# initiate-upload, presigned PUT(s), and POST /api/v1/complete-upload are handled automatically
 upload_result = client.upload_file(
     file="/path/to/document.pdf",
     file_name="document.pdf",
@@ -161,7 +166,7 @@ $client = new Dragdropdo([
     'base_url' => 'https://api.dragdropdo.com',
 ]);
 
-// All steps handled automatically
+// initiate-upload, presigned PUT(s), and POST /api/v1/complete-upload are handled automatically
 $uploadResult = $client->uploadFile([
     'file' => '/path/to/document.pdf',
     'file_name' => 'document.pdf',
@@ -180,7 +185,7 @@ client = DragdropdoSdk::Dragdropdo.new(
   base_url: 'https://api.dragdropdo.com'
 )
 
-# All steps handled automatically
+# initiate-upload, presigned PUT(s), and POST /api/v1/complete-upload are handled automatically
 upload_result = client.upload_file(
   file: '/path/to/document.pdf',
   file_name: 'document.pdf',
@@ -199,7 +204,7 @@ client, _ := d3.NewDragdropdo(d3.Config{
     BaseURL: "https://api.dragdropdo.com",
 })
 
-// All steps handled automatically
+// initiate-upload, presigned PUT(s), and POST /api/v1/complete-upload are handled automatically
 uploadResult, _ := client.UploadFile(d3.UploadFileOptions{
     File:     "/path/to/document.pdf",
     FileName: "document.pdf",
@@ -220,7 +225,7 @@ Dragdropdo client = new Dragdropdo(
         .setBaseUrl("https://api.dragdropdo.com")
 );
 
-// All steps handled automatically
+// initiate-upload, presigned PUT(s), and POST /api/v1/complete-upload are handled automatically
 UploadResponse uploadResult = client.uploadFile(
     new UploadFileOptions()
         .setFile("/path/to/document.pdf")

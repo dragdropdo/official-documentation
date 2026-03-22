@@ -70,6 +70,26 @@ From the Business API design, the main events are:
 }
 ```
 
+### operation.failed
+
+```json
+{
+  "type": "operation.failed",
+  "timestamp": "2022-11-03T20:26:10.344522Z",
+  "payload": {
+    "main_task": {
+      "id": "aaa...",
+      "status": "failed",
+      "count": {
+        "total": 2,
+        "success": 0,
+        "failed": 2
+      }
+    }
+  }
+}
+```
+
 ### fileTask.completed
 
 ```json
