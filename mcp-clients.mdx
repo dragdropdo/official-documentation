@@ -1,0 +1,150 @@
+---
+title: "MCP clients (Claude Code, Cursor, custom)"
+description: "Connect AI assistants and applications to DragDropDo using the Model Context Protocol (MCP) over HTTPS."
+---
+
+# DragDropDo MCP server
+
+The **DragDropDo MCP server** exposes the same capabilities as the [Business API](/business-api/overview)—upload, convert, compress, merge, zip, PDF password tools, and status polling—as [MCP tools](https://modelcontextprotocol.io/). Clients connect over **Streamable HTTP** (HTTPS).
+
+## Prerequisites
+
+- A **D3 API key** from the dashboard ([sign in](https://dragdropdo.com/auth/signin) → Account → generate API key). This is the same key used for `Authorization: Bearer` on `/api/v1`.
+- The **MCP endpoint URL** for your environment. Replace the example below with the URL shown in your deployment or docs (production commonly follows `https://mcp.dragdropdo.com/mcp`; some environments use a host such as `https://mcp-dev.dragdropdo.com/mcp`).
+
+Authentication: send the raw API key in the MCP HTTP **`Authorization`** header:
+
+```http
+Authorization: Bearer <YOUR_D3_API_KEY>
+```
+
+The server validates this key the same way as REST requests (see [Authentication](/business-api/authentication)).
+
+## Claude Code
+
+[Claude Code](https://code.claude.com/docs) supports remote MCP servers over HTTP. Prefer **`--transport http`** (SSE is deprecated).
+
+### CLI (recommended)
+
+Add the server and pass your API key on the `Authorization` header:
+
+```bash
+claude mcp add --transport http d3 https://mcp.dragdropdo.com/mcp \
+  --header "Authorization: Bearer YOUR_D3_API_KEY"
+```
+
+Useful commands: `claude mcp list`, `claude mcp get d3`, `claude mcp remove d3`.
+
+Scopes: add `--scope project` to store the entry in the project’s `.mcp.json`, or `--scope user` for your user config. See [Connect Claude Code to tools via MCP](https://code.claude.com/docs/en/mcp).
+
+### JSON configuration
+
+Claude Code merges MCP entries from `~/.claude.json` and, for project scope, `.mcp.json`. An HTTP server entry looks like this (structure may vary slightly by Claude Code version—use `claude mcp get <name>` after adding to see the exact shape):
+
+```json
+{
+  "mcpServers": {
+    "d3": {
+      "type": "http",
+      "url": "https://mcp.dragdropdo.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_D3_API_KEY"
+      }
+    }
+  }
+}
+```
+
+You can use environment substitution in values where your tooling supports it (for example `Bearer ${D3_API_KEY}`), so secrets are not committed to git.
+
+## Cursor
+
+In **Cursor**, MCP servers are defined in the MCP config file (often **user**: `~/.cursor/mcp.json`, or **project** `.cursor/mcp.json` depending on your setup).
+
+Add an entry with `url` and `headers`:
+
+```json
+{
+  "mcpServers": {
+    "d3": {
+      "url": "https://mcp.dragdropdo.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_D3_API_KEY"
+      }
+    }
+  }
+}
+```
+
+Restart Cursor or reload MCP servers so the new server is picked up. The assistant can then call DragDropDo tools (for example `initiate_upload`, `convert_file`, `poll_status`) when appropriate.
+
+## Custom MCP clients (TypeScript, Python, Go)
+
+Any client that speaks **MCP Streamable HTTP** can connect to the same URL with the same `Authorization` header. Official SDKs:
+
+- **TypeScript / Node:** [`@modelcontextprotocol/sdk`](https://github.com/modelcontextprotocol/typescript-sdk) — use `StreamableHTTPClientTransport` with your MCP URL.
+- **Python:** [`mcp` (Model Context Protocol Python SDK)](https://github.com/modelcontextprotocol/python-sdk) — use `streamable_http_client` with an `httpx` client that sets default headers.
+
+Below are minimal patterns; adjust imports to match your installed SDK version.
+
+### TypeScript (Streamable HTTP)
+
+Use the transport’s **`authProvider`** for a static bearer token, or **`requestInit.headers`** if you prefer to set `Authorization` explicitly:
+
+```typescript
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+
+const url = new URL("https://mcp.dragdropdo.com/mcp");
+const transport = new StreamableHTTPClientTransport(url, {
+  authProvider: {
+    token: async () => process.env.D3_API_KEY!,
+  },
+});
+
+const client = new Client({ name: "my-app", version: "1.0.0" });
+await client.connect(transport);
+// List tools, call tools, etc.
+```
+
+Refer to the [TypeScript SDK client docs](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/client.md) for `listTools`, `callTool`, and session lifecycle.
+
+### Python (Streamable HTTP)
+
+Pass an **`httpx.AsyncClient`** whose default headers include `Authorization`:
+
+```python
+import os
+import httpx
+from mcp import ClientSession
+from mcp.client.streamable_http import streamable_http_client
+
+URL = "https://mcp.dragdropdo.com/mcp"
+API_KEY = os.environ["D3_API_KEY"]
+
+headers = {"Authorization": f"Bearer {API_KEY}"}
+
+async def main():
+    async with httpx.AsyncClient(headers=headers) as http_client:
+        async with streamable_http_client(URL, http_client=http_client) as (read, write):
+            async with ClientSession(read, write) as session:
+                await session.initialize()
+                tools = await session.list_tools()
+                # Call tools with session.call_tool(...)
+```
+
+See the [Python SDK client documentation](https://py.sdk.modelcontextprotocol.io/client/) for full APIs.
+
+### Go and other languages
+
+Use an MCP library that implements **Streamable HTTP** for clients, or generate requests per the [MCP specification](https://modelcontextprotocol.io/specification/draft). The DragDropDo service implementation is compatible with the same protocol as [`mark3labs/mcp-go`](https://github.com/mark3labs/mcp-go) (used server-side in the D3 codebase); check that project’s examples for client usage if you build a Go integration.
+
+## Available tools (summary)
+
+Typical tool names include: `initiate_upload`, `complete_upload`, `supported_operation`, `convert_file`, `compress_file`, `merge_files`, `zip_files`, `lock_pdf`, `unlock_pdf`, `reset_pdf_password`, `get_status`, `poll_status`, `get_download_link`. The server also sends **instructions** describing the upload and operation workflow. Use **`list_tools`** from your client after connecting to see the canonical list and schemas for your session.
+
+## Related documentation
+
+- [Business API overview](/business-api/overview) — REST surface parallel to MCP tools  
+- [Authentication](/business-api/authentication) — API key usage and security  
+- [Quickstart](/quickstart) — upload and operation flow with REST examples  

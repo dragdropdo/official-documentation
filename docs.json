@@ -19,7 +19,7 @@
         "groups": [
           {
             "group": "Getting started",
-            "pages": ["index", "introduction", "quickstart"]
+            "pages": ["index", "introduction", "quickstart", "mcp-clients"]
           },
           {
             "group": "Business API",
