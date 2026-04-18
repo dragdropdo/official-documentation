@@ -19,13 +19,14 @@
         "groups": [
           {
             "group": "Getting started",
-            "pages": ["index", "introduction", "quickstart", "mcp-clients"]
+            "pages": ["index", "introduction", "quickstart"]
           },
           {
             "group": "Business API",
             "pages": [
               "business-api/overview",
               "business-api/authentication",
+              "business-api/mcp-clients",
               "business-api/upload",
               "business-api/operations",
               "business-api/status",
