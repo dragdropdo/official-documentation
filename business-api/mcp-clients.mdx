@@ -9,10 +9,10 @@ The **DragDropDo MCP server** exposes the same capabilities as the [Business API
 
 ## Prerequisites
 
-- A **D3 API key** from the dashboard ([sign in](https://dragdropdo.com/auth/signin) → Account → generate API key). This is the same key used for `Authorization: Bearer` on `/api/v1`.
-- The **MCP endpoint URL** for your environment. Replace the example below with the URL shown in your deployment or docs (production commonly follows `https://mcp.dragdropdo.com/mcp`; some environments use a host such as `https://mcp-dev.dragdropdo.com/mcp`).
+- A **D3 API key** from the dashboard ([sign in](https://dragdropdo.com/auth/signin) → Account → generate API key). Same key as for `Authorization: Bearer` on `/api/v1`.
+- **MCP URL:** `https://mcp.dragdropdo.com/mcp`
 
-Authentication: send the raw API key in the MCP HTTP **`Authorization`** header:
+Send the API key on every MCP request in the **`Authorization`** header:
 
 ```http
 Authorization: Bearer <YOUR_D3_API_KEY>
@@ -80,9 +80,9 @@ Restart Cursor or reload MCP servers so the new server is picked up. The assista
 
 ## Custom MCP clients
 
-Use any official [Model Context Protocol](https://modelcontextprotocol.io/) client that supports **Streamable HTTP**. Pass the MCP URL and send `Authorization: Bearer` with your D3 API key on every HTTP request (SDKs differ in how they expose headers or token providers).
+Use an official [Model Context Protocol](https://modelcontextprotocol.io/) client with **Streamable HTTP** to `https://mcp.dragdropdo.com/mcp`, authenticated with `Authorization: Bearer` and your API key.
 
-The examples below connect, run the MCP **initialize** handshake, and **list tools**. Adjust package versions and import paths to match your SDK release.
+The examples below initialize the session and **list tools**. Match imports and APIs to your SDK version.
 
 <CodeGroup>
 
