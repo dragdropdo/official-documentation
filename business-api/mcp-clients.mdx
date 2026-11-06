@@ -1,18 +1,100 @@
 ---
-title: "MCP clients (Claude Code, Cursor, custom)"
-description: "Connect AI assistants and applications to DragDropDo using the Model Context Protocol (MCP) over HTTPS."
+title: "MCP clients (Claude, Claude Code, Cursor, custom)"
+description: "Connect AI assistants and applications to DragDropDo using the Model Context Protocol (MCP): sign in from Claude, Claude Code or Cursor, or use an API key."
 ---
 
 # DragDropDo MCP server
 
-The **DragDropDo MCP server** exposes the same capabilities as the [Business API](/business-api/overview)—upload, convert, compress, merge, zip, PDF password tools, and status polling—as [MCP tools](https://modelcontextprotocol.io/). Clients connect over **Streamable HTTP** (HTTPS).
+The **DragDropDo MCP server** exposes the same capabilities as the [Business API](/business-api/overview)—upload, convert, compress, merge, zip, PDF password tools, and status polling—as [MCP tools](https://modelcontextprotocol.io/). Clients connect over **Streamable HTTP** (HTTPS) at:
 
-## Prerequisites
+```text
+https://mcp.dragdropdo.com/mcp
+```
 
-- A **D3 API key** from the dashboard ([sign in](https://dragdropdo.com/auth/signin) → Account → generate API key). Same key as for `Authorization: Bearer` on `/api/v1`.
-- **MCP URL:** `https://mcp.dragdropdo.com/mcp`
+There are two ways to connect:
 
-Send the API key on every MCP request in the **`Authorization`** header:
+| | Sign in (recommended for assistants) | API key |
+|---|---|---|
+| For | Claude, Claude Code, Cursor and other assistants that support MCP sign-in | Scripts, CI, custom applications, any client that can send headers |
+| Setup | Add the URL, click **Connect**, sign in to DragDropDo, **Allow** | Generate a key and send it as `Authorization: Bearer` |
+| Manage | **Account → API**, listed as *Connected app* | **Account → API** |
+
+Both give the same tools and the same [limits](#limits).
+
+## Connect by signing in
+
+When you add DragDropDo to an assistant, it opens a browser window: sign in to DragDropDo (Google, Microsoft or Facebook), check the request, and click **Allow**. The assistant then gets its own access, renewed automatically; you never copy a key.
+
+The approval page shows the app's name and the address it will send you back to (for example `claude.ai`). Only click **Allow** if that is the app you are connecting.
+
+### Claude (claude.ai, Claude Desktop, Claude mobile)
+
+On Claude plans that support custom connectors:
+
+1. In Claude, open **Settings → Connectors** and choose **Add custom connector**.
+2. Name it (for example `DragDropDo`) and enter the URL `https://mcp.dragdropdo.com/mcp`. Click **Add**.
+3. Click **Connect**, sign in to DragDropDo, and click **Allow**.
+
+A connector added on claude.ai is also available in Claude Desktop and the Claude mobile apps. In a chat, enable it from the tools menu and ask, for example, *"Can DragDropDo convert WEBP to PNG?"*
+
+<Note>
+Uploading a file from your computer requires an assistant that can run commands, such as Claude Code or Cursor. In claude.ai, Claude Desktop and Claude mobile the tools can check what DragDropDo supports, but can't yet send a file from your device.
+</Note>
+
+### Claude Code
+
+[Claude Code](https://code.claude.com/docs) supports remote MCP servers over HTTP. Add the server without a key:
+
+```bash
+claude mcp add --transport http d3 https://mcp.dragdropdo.com/mcp
+```
+
+Then, in Claude Code, run `/mcp`, select **d3** and choose **Authenticate**. Your browser opens: sign in to DragDropDo and click **Allow**.
+
+Useful commands: `claude mcp list`, `claude mcp get d3`, `claude mcp remove d3`. Add `--scope project` to store the entry in the project's `.mcp.json`, or `--scope user` for your user config. See [Connect Claude Code to tools via MCP](https://code.claude.com/docs/en/mcp).
+
+### Cursor
+
+Add an entry with only the URL to your MCP config (user: `~/.cursor/mcp.json`, or project: `.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "d3": {
+      "url": "https://mcp.dragdropdo.com/mcp"
+    }
+  }
+}
+```
+
+In Cursor's MCP settings the server then shows a sign-in button. Click it, sign in to DragDropDo and click **Allow**.
+
+### Other assistants
+
+The server follows the [MCP authorization specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization) (OAuth 2.1 with PKCE, dynamic client registration). Clients find it from the `401` response and `https://mcp.dragdropdo.com/.well-known/oauth-protected-resource/mcp`.
+
+For your security, sign-in is open to apps whose sign-in returns to one of these addresses:
+
+- `https://claude.ai/…` and `https://claude.com/…` (Claude)
+- `http://localhost`, `http://127.0.0.1` or `http://[::1]` on any port (assistants running on your computer, such as Claude Code)
+- `cursor://…` (Cursor)
+
+If your assistant isn't accepted ("Can't connect this app"), [contact us](https://dragdropdo.com/contact-us) to have it added, or use an [API key](#connect-with-an-api-key) instead.
+
+### Managing connected apps
+
+Every app you connect appears in **Account → API** as a *Connected app*. Connecting the same app again reuses that entry.
+
+To disconnect an app, delete its entry there. It loses access immediately; its next request is refused and it asks you to connect again.
+
+Connected apps don't count toward the number of API keys your plan allows.
+
+## Connect with an API key
+
+Use an API key for scripts, CI, custom applications, or any client that can send headers.
+
+- Generate a **D3 API key** in the dashboard ([sign in](https://dragdropdo.com/auth/signin) → Account → API). It is the same key as for `Authorization: Bearer` on `/api/v1`.
+- Send it on every MCP request in the **`Authorization`** header:
 
 ```http
 Authorization: Bearer <YOUR_D3_API_KEY>
@@ -20,11 +102,7 @@ Authorization: Bearer <YOUR_D3_API_KEY>
 
 The server validates this key the same way as REST requests (see [Authentication](/business-api/authentication)).
 
-## Claude Code
-
-[Claude Code](https://code.claude.com/docs) supports remote MCP servers over HTTP. Prefer **`--transport http`** (SSE is deprecated).
-
-### CLI (recommended)
+### Claude Code
 
 Add the server and pass your API key on the `Authorization` header:
 
@@ -33,13 +111,7 @@ claude mcp add --transport http d3 https://mcp.dragdropdo.com/mcp \
   --header "Authorization: Bearer YOUR_D3_API_KEY"
 ```
 
-Useful commands: `claude mcp list`, `claude mcp get d3`, `claude mcp remove d3`.
-
-Scopes: add `--scope project` to store the entry in the project’s `.mcp.json`, or `--scope user` for your user config. See [Connect Claude Code to tools via MCP](https://code.claude.com/docs/en/mcp).
-
-### JSON configuration
-
-Claude Code merges MCP entries from `~/.claude.json` and, for project scope, `.mcp.json`. An HTTP server entry looks like this (structure may vary slightly by Claude Code version—use `claude mcp get <name>` after adding to see the exact shape):
+Claude Code merges MCP entries from `~/.claude.json` and, for project scope, `.mcp.json`. An HTTP server entry with a key looks like this (structure may vary slightly by Claude Code version—use `claude mcp get <name>` after adding to see the exact shape):
 
 ```json
 {
@@ -57,9 +129,7 @@ Claude Code merges MCP entries from `~/.claude.json` and, for project scope, `.m
 
 You can use environment substitution in values where your tooling supports it (for example `Bearer ${D3_API_KEY}`), so secrets are not committed to git.
 
-## Cursor
-
-In **Cursor**, MCP servers are defined in the MCP config file (often **user**: `~/.cursor/mcp.json`, or **project** `.cursor/mcp.json` depending on your setup).
+### Cursor
 
 Add an entry with `url` and `headers`:
 
@@ -76,9 +146,9 @@ Add an entry with `url` and `headers`:
 }
 ```
 
-Restart Cursor or reload MCP servers so the new server is picked up. The assistant can then call DragDropDo tools (for example `initiate_upload`, `convert_file`, `poll_status`) when appropriate.
+Restart Cursor or reload MCP servers so the new server is picked up.
 
-## Custom MCP clients
+### Custom MCP clients
 
 Use an official [Model Context Protocol](https://modelcontextprotocol.io/) client with **Streamable HTTP** to `https://mcp.dragdropdo.com/mcp`, authenticated with `Authorization: Bearer` and your API key.
 
@@ -92,8 +162,9 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 
 const url = new URL("https://mcp.dragdropdo.com/mcp");
 const transport = new StreamableHTTPClientTransport(url, {
-  authProvider: {
-    token: async () => process.env.D3_API_KEY!,
+  // A fixed API key goes in the request headers. (authProvider is for the full OAuth sign-in flow.)
+  requestInit: {
+    headers: { Authorization: `Bearer ${process.env.D3_API_KEY}` },
   },
 });
 
@@ -230,12 +301,26 @@ client.closeGracefully();
 
 **SDK references:** [TypeScript](https://github.com/modelcontextprotocol/typescript-sdk), [Python](https://github.com/modelcontextprotocol/python-sdk), [PHP `mcp/sdk`](https://github.com/modelcontextprotocol/php-sdk), [Ruby `mcp` gem](https://github.com/modelcontextprotocol/ruby-sdk), [Go `mark3labs/mcp-go`](https://github.com/mark3labs/mcp-go), [Java `io.modelcontextprotocol.sdk:mcp`](https://java.sdk.modelcontextprotocol.io/latest/).
 
-## Available tools (summary)
+## Limits
 
-Typical tool names include: `initiate_upload`, `complete_upload`, `supported_operation`, `convert_file`, `compress_file`, `merge_files`, `zip_files`, `lock_pdf`, `unlock_pdf`, `reset_pdf_password`, `get_status`, `poll_status`, `get_download_link`. The server also sends **instructions** describing the upload and operation workflow. Use **`list_tools`** from your client after connecting to see the canonical list and schemas for your session.
+Connected apps and API keys share your account's limits. Free accounts have a daily limit on operations; with an active subscription there is none. When the limit is reached, tools return an error such as `daily operation limit reached, resets at 2026-11-07T00:00:00Z` (midnight UTC), and the REST API answers `402 Payment Required`.
+
+## Available tools
+
+The tools are `initiate_upload`, `complete_upload`, `supported_operation`, `convert_file`, `batch_convert_files`, `compress_file`, `batch_compress_files`, `merge_files`, `zip_files`, `lock_pdf`, `unlock_pdf`, `reset_pdf_password`, `get_status`, `poll_status`, `batch_poll_status` and `get_download_link`. The server also sends **instructions** describing the upload and operation workflow. Use **`list_tools`** from your client after connecting to see the canonical list and schemas for your session.
+
+## Troubleshooting
+
+| You see | What to do |
+|---|---|
+| *This sign-in link has expired* | Sign-in links last 10 minutes and work only in the browser where you started. Start again from your assistant. |
+| *Can't connect this app* | The assistant isn't among the apps that can sign in (see [Other assistants](#other-assistants)). Use an API key, or contact us. |
+| The assistant asks you to connect again | The connection was removed under **Account → API**, or not used for 30 days. Connect again. |
+| `daily operation limit reached, resets at …` | Your free daily operations are used up. They reset at midnight UTC, or subscribe for no limit. |
+| `401 Unauthorized` with an API key | The key is wrong, expired or deleted. Generate a new one under **Account → API**. |
 
 ## Related documentation
 
-- [Business API overview](/business-api/overview) — REST surface parallel to MCP tools  
-- [Authentication](/business-api/authentication) — API key usage and security  
-- [Quickstart](/quickstart) — upload and operation flow with REST examples  
+- [Business API overview](/business-api/overview) — REST surface parallel to MCP tools
+- [Authentication](/business-api/authentication) — API key usage and security
+- [Quickstart](/quickstart) — upload and operation flow with REST examples
