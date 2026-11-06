@@ -1,6 +1,6 @@
 ---
-title: "MCP clients (Claude, Claude Code, Cursor, custom)"
-description: "Connect AI assistants and applications to DragDropDo using the Model Context Protocol (MCP): sign in from Claude, Claude Code or Cursor, or use an API key."
+title: "MCP clients (Claude, Claude Code, Cursor)"
+description: "Connect AI assistants to DragDropDo with the Model Context Protocol (MCP): add the server, sign in to DragDropDo, and allow access."
 ---
 
 # DragDropDo MCP server
@@ -11,23 +11,15 @@ The **DragDropDo MCP server** exposes the same capabilities as the [Business API
 https://mcp.dragdropdo.com/mcp
 ```
 
-There are two ways to connect:
+You connect by **signing in**: add the server to your assistant, sign in to DragDropDo, and click **Allow**. There is no key to copy. (API keys are for the [REST Business API](/business-api/authentication); the MCP server doesn't accept them.)
 
-| | Sign in (recommended for assistants) | API key |
-|---|---|---|
-| For | Claude, Claude Code, Cursor and other assistants that support MCP sign-in | Scripts, CI, custom applications, any client that can send headers |
-| Setup | Add the URL, click **Connect**, sign in to DragDropDo, **Allow** | Generate a key and send it as `Authorization: Bearer` |
-| Manage | **Account → API**, listed as *Connected app* | **Account → API** |
+## How signing in works
 
-Both give the same tools and the same [limits](#limits).
-
-## Connect by signing in
-
-When you add DragDropDo to an assistant, it opens a browser window: sign in to DragDropDo (Google, Microsoft or Facebook), check the request, and click **Allow**. The assistant then gets its own access, renewed automatically; you never copy a key.
+When you add DragDropDo to an assistant, it opens a browser window: sign in to DragDropDo (Google, Microsoft or Facebook), check the request, and click **Allow**. The assistant then gets its own access, renewed automatically.
 
 The approval page shows the app's name and the address it will send you back to (for example `claude.ai`). Only click **Allow** if that is the app you are connecting.
 
-### Claude (claude.ai, Claude Desktop, Claude mobile)
+## Claude (claude.ai, Claude Desktop, Claude mobile)
 
 On Claude plans that support custom connectors:
 
@@ -41,9 +33,9 @@ A connector added on claude.ai is also available in Claude Desktop and the Claud
 Uploading a file from your computer requires an assistant that can run commands, such as Claude Code or Cursor. In claude.ai, Claude Desktop and Claude mobile the tools can check what DragDropDo supports, but can't yet send a file from your device.
 </Note>
 
-### Claude Code
+## Claude Code
 
-[Claude Code](https://code.claude.com/docs) supports remote MCP servers over HTTP. Add the server without a key:
+[Claude Code](https://code.claude.com/docs) supports remote MCP servers over HTTP. Add the server:
 
 ```bash
 claude mcp add --transport http d3 https://mcp.dragdropdo.com/mcp
@@ -53,9 +45,9 @@ Then, in Claude Code, run `/mcp`, select **d3** and choose **Authenticate**. You
 
 Useful commands: `claude mcp list`, `claude mcp get d3`, `claude mcp remove d3`. Add `--scope project` to store the entry in the project's `.mcp.json`, or `--scope user` for your user config. See [Connect Claude Code to tools via MCP](https://code.claude.com/docs/en/mcp).
 
-### Cursor
+## Cursor
 
-Add an entry with only the URL to your MCP config (user: `~/.cursor/mcp.json`, or project: `.cursor/mcp.json`):
+Add an entry with the URL to your MCP config (user: `~/.cursor/mcp.json`, or project: `.cursor/mcp.json`):
 
 ```json
 {
@@ -69,19 +61,21 @@ Add an entry with only the URL to your MCP config (user: `~/.cursor/mcp.json`, o
 
 In Cursor's MCP settings the server then shows a sign-in button. Click it, sign in to DragDropDo and click **Allow**.
 
-### Other assistants
+## Other assistants and custom clients
 
-The server follows the [MCP authorization specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization) (OAuth 2.1 with PKCE, dynamic client registration). Clients find it from the `401` response and `https://mcp.dragdropdo.com/.well-known/oauth-protected-resource/mcp`.
+The server follows the [MCP authorization specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization) (OAuth 2.1 with PKCE and dynamic client registration). A client finds the sign-in from the server's `401` response and from `https://mcp.dragdropdo.com/.well-known/oauth-protected-resource/mcp`.
 
 For your security, sign-in is open to apps whose sign-in returns to one of these addresses:
 
 - `https://claude.ai/…` and `https://claude.com/…` (Claude)
-- `http://localhost`, `http://127.0.0.1` or `http://[::1]` on any port (assistants running on your computer, such as Claude Code)
+- `http://localhost`, `http://127.0.0.1` or `http://[::1]` on any port (assistants and applications running on your computer, such as Claude Code)
 - `cursor://…` (Cursor)
 
-If your assistant isn't accepted ("Can't connect this app"), [contact us](https://dragdropdo.com/contact-us) to have it added, or use an [API key](#connect-with-an-api-key) instead.
+If your assistant isn't accepted ("Can't connect this app"), [contact us](https://dragdropdo.com/contact-us) to have it added.
 
-### Managing connected apps
+**Building your own client?** Use an MCP SDK that implements the authorization flow (for example the TypeScript SDK's `authProvider` option) with a `http://localhost` redirect URL. For scripts and CI jobs that run without a person to sign in, use the [REST Business API](/business-api/overview) with an [API key](/business-api/authentication) instead: it offers the same operations.
+
+## Managing connected apps
 
 Every app you connect appears in **Account → API** as a *Connected app*. Connecting the same app again reuses that entry.
 
@@ -89,221 +83,9 @@ To disconnect an app, delete its entry there. It loses access immediately; its n
 
 Connected apps don't count toward the number of API keys your plan allows.
 
-## Connect with an API key
-
-Use an API key for scripts, CI, custom applications, or any client that can send headers.
-
-- Generate a **D3 API key** in the dashboard ([sign in](https://dragdropdo.com/auth/signin) → Account → API). It is the same key as for `Authorization: Bearer` on `/api/v1`.
-- Send it on every MCP request in the **`Authorization`** header:
-
-```http
-Authorization: Bearer <YOUR_D3_API_KEY>
-```
-
-The server validates this key the same way as REST requests (see [Authentication](/business-api/authentication)).
-
-### Claude Code
-
-Add the server and pass your API key on the `Authorization` header:
-
-```bash
-claude mcp add --transport http d3 https://mcp.dragdropdo.com/mcp \
-  --header "Authorization: Bearer YOUR_D3_API_KEY"
-```
-
-Claude Code merges MCP entries from `~/.claude.json` and, for project scope, `.mcp.json`. An HTTP server entry with a key looks like this (structure may vary slightly by Claude Code version—use `claude mcp get <name>` after adding to see the exact shape):
-
-```json
-{
-  "mcpServers": {
-    "d3": {
-      "type": "http",
-      "url": "https://mcp.dragdropdo.com/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_D3_API_KEY"
-      }
-    }
-  }
-}
-```
-
-You can use environment substitution in values where your tooling supports it (for example `Bearer ${D3_API_KEY}`), so secrets are not committed to git.
-
-### Cursor
-
-Add an entry with `url` and `headers`:
-
-```json
-{
-  "mcpServers": {
-    "d3": {
-      "url": "https://mcp.dragdropdo.com/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_D3_API_KEY"
-      }
-    }
-  }
-}
-```
-
-Restart Cursor or reload MCP servers so the new server is picked up.
-
-### Custom MCP clients
-
-Use an official [Model Context Protocol](https://modelcontextprotocol.io/) client with **Streamable HTTP** to `https://mcp.dragdropdo.com/mcp`, authenticated with `Authorization: Bearer` and your API key.
-
-The examples below initialize the session and **list tools**. Match imports and APIs to your SDK version.
-
-<CodeGroup>
-
-```ts NODE
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-
-const url = new URL("https://mcp.dragdropdo.com/mcp");
-const transport = new StreamableHTTPClientTransport(url, {
-  // A fixed API key goes in the request headers. (authProvider is for the full OAuth sign-in flow.)
-  requestInit: {
-    headers: { Authorization: `Bearer ${process.env.D3_API_KEY}` },
-  },
-});
-
-const client = new Client({ name: "my-app", version: "1.0.0" });
-await client.connect(transport);
-await client.listTools();
-// await client.callTool({ name: "supported_operation", arguments: { ext: "pdf" } });
-```
-
-```python PYTHON
-import os
-import httpx
-from mcp import ClientSession
-from mcp.client.streamable_http import streamable_http_client
-
-URL = "https://mcp.dragdropdo.com/mcp"
-api_key = os.environ["D3_API_KEY"]
-headers = {"Authorization": f"Bearer {api_key}"}
-
-async def main():
-    async with httpx.AsyncClient(headers=headers) as http_client:
-        async with streamable_http_client(URL, http_client=http_client) as (read, write):
-            async with ClientSession(read, write) as session:
-                await session.initialize()
-                await session.list_tools()
-                # await session.call_tool("supported_operation", {"ext": "pdf"})
-
-# asyncio.run(main())
-```
-
-```php PHP
-<?php
-
-declare(strict_types=1);
-
-use Mcp\Client;
-use Mcp\Client\Transport\HttpTransport;
-
-$apiKey = getenv('D3_API_KEY') ?: '';
-
-$client = Client::builder()
-    ->setClientInfo('My App', '1.0.0')
-    ->build();
-
-$transport = new HttpTransport(
-    endpoint: 'https://mcp.dragdropdo.com/mcp',
-    headers: ['Authorization' => 'Bearer ' . $apiKey],
-);
-
-$client->connect($transport);
-$client->listTools();
-// $client->callTool(name: 'supported_operation', arguments: ['ext' => 'pdf']);
-$client->disconnect();
-```
-
-```ruby RUBY
-# Gemfile: gem "mcp" / gem "faraday", ">= 2.0"
-
-require "mcp"
-
-http_transport = MCP::Client::HTTP.new(
-  url: "https://mcp.dragdropdo.com/mcp",
-  headers: {
-    "Authorization" => "Bearer #{ENV.fetch('D3_API_KEY')}",
-  },
-)
-
-client = MCP::Client.new(transport: http_transport)
-client.tools
-# client.call_tool(tool: client.tools.first, arguments: { "ext" => "pdf" })
-```
-
-```go GO
-package main
-
-import (
-	"context"
-	"os"
-
-	"github.com/mark3labs/mcp-go/client"
-	"github.com/mark3labs/mcp-go/client/transport"
-	"github.com/mark3labs/mcp-go/mcp"
-)
-
-func main() {
-	ctx := context.Background()
-	key := os.Getenv("D3_API_KEY")
-
-	httpTransport, err := transport.NewStreamableHTTP(
-		"https://mcp.dragdropdo.com/mcp",
-		transport.WithHTTPHeaders(map[string]string{
-			"Authorization": "Bearer " + key,
-		}),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	c := client.NewClient(httpTransport)
-	defer c.Close()
-
-	if err := c.Initialize(ctx); err != nil {
-		panic(err)
-	}
-	if _, err := c.ListTools(ctx, mcp.ListToolsRequest{}); err != nil {
-		panic(err)
-	}
-	// c.CallTool(ctx, mcp.CallToolRequest{ ... })
-}
-```
-
-```java JAVA
-import io.modelcontextprotocol.sdk.client.McpClient;
-import io.modelcontextprotocol.sdk.client.McpSyncClient;
-import io.modelcontextprotocol.sdk.client.transport.HttpClientStreamableHttpTransport;
-import io.modelcontextprotocol.sdk.spec.McpTransport;
-
-// io.modelcontextprotocol.sdk:mcp — use your BOM or version from https://java.sdk.modelcontextprotocol.io/
-
-String apiKey = System.getenv("D3_API_KEY");
-McpTransport transport = HttpClientStreamableHttpTransport.builder("https://mcp.dragdropdo.com")
-    .endpoint("/mcp")
-    .requestCustomizer(req -> req.header("Authorization", "Bearer " + apiKey))
-    .build();
-
-McpSyncClient client = McpClient.sync(transport).build();
-client.initialize();
-client.listTools();
-// client.callTool(new CallToolRequest("supported_operation", Map.of("ext", "pdf")));
-client.closeGracefully();
-```
-
-</CodeGroup>
-
-**SDK references:** [TypeScript](https://github.com/modelcontextprotocol/typescript-sdk), [Python](https://github.com/modelcontextprotocol/python-sdk), [PHP `mcp/sdk`](https://github.com/modelcontextprotocol/php-sdk), [Ruby `mcp` gem](https://github.com/modelcontextprotocol/ruby-sdk), [Go `mark3labs/mcp-go`](https://github.com/mark3labs/mcp-go), [Java `io.modelcontextprotocol.sdk:mcp`](https://java.sdk.modelcontextprotocol.io/latest/).
-
 ## Limits
 
-Connected apps and API keys share your account's limits. Free accounts have a daily limit on operations; with an active subscription there is none. When the limit is reached, tools return an error such as `daily operation limit reached, resets at 2026-11-07T00:00:00Z` (midnight UTC), and the REST API answers `402 Payment Required`.
+Connected apps use your account's limits, the same as the REST API. Free accounts have a daily limit on operations; with an active subscription there is none. When the limit is reached, tools return an error such as `daily operation limit reached, resets at 2026-11-07T00:00:00Z` (midnight UTC).
 
 ## Available tools
 
@@ -314,13 +96,13 @@ The tools are `initiate_upload`, `complete_upload`, `supported_operation`, `conv
 | You see | What to do |
 |---|---|
 | *This sign-in link has expired* | Sign-in links last 10 minutes and work only in the browser where you started. Start again from your assistant. |
-| *Can't connect this app* | The assistant isn't among the apps that can sign in (see [Other assistants](#other-assistants)). Use an API key, or contact us. |
+| *Can't connect this app* | The assistant isn't among the apps that can sign in (see [Other assistants and custom clients](#other-assistants-and-custom-clients)). Contact us to have it added. |
 | The assistant asks you to connect again | The connection was removed under **Account → API**, or not used for 30 days. Connect again. |
 | `daily operation limit reached, resets at …` | Your free daily operations are used up. They reset at midnight UTC, or subscribe for no limit. |
-| `401 Unauthorized` with an API key | The key is wrong, expired or deleted. Generate a new one under **Account → API**. |
+| `401 Unauthorized` when sending an API key | The MCP server accepts sign-in only. Remove the `Authorization` header from your MCP config and connect by signing in. |
 
 ## Related documentation
 
 - [Business API overview](/business-api/overview) — REST surface parallel to MCP tools
-- [Authentication](/business-api/authentication) — API key usage and security
+- [Authentication](/business-api/authentication) — API keys for the REST API
 - [Quickstart](/quickstart) — upload and operation flow with REST examples
