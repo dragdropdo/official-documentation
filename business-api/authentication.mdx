@@ -3,6 +3,10 @@ title: "Authentication"
 description: "How API key authentication works in the D3 Business API."
 ---
 
+<Note>
+API keys are for the REST Business API. AI assistants connect to the [MCP server](/business-api/mcp-clients) by signing in to DragDropDo; it doesn't accept API keys.
+</Note>
+
 ## API key authentication
 
 Business API routes under `/api/v1` are protected with an API‑key–based middleware (`APIKeyAuth`) that verifies requests using a hashed key and encrypted digest stored in the `developer_app_details` (or equivalent) table.
